@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Wonder Formulas",
+    "name": "Wonder Formula",
     "description": "Wonderful formula editor for Salesforce :)",
     "version": "0.0",
     "content_scripts": [
