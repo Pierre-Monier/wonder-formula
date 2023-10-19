@@ -2,5 +2,16 @@
     "manifest_version": 3,
     "name": "Wonder Formulas",
     "description": "Wonderful formula editor for Salesforce :)",
-    "version": "0.0"
+    "version": "0.0",
+    "content_scripts": [
+        {
+            "all_frames": true,
+            "js": [
+                "dist/scripts/insert_in_object_manager.js"
+            ],
+            "matches": [
+                "*://*.salesforce.com/**"
+            ]
+        }
+    ]
 }
