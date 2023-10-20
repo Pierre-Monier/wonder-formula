@@ -15,14 +15,12 @@ const insertWonderFormulaScript = (onload: () => void) => {
 };
 
 const insertWonderFormulaEditor = () => {
-  const container = document.querySelector(
-    ".pbWizardBody table tbody > tr > td > div.miniTabOn",
-  );
-  if (!container) return;
+  const miniTabOn = document.querySelector(miniTabOnSelector);
+  if (!miniTabOn) return;
 
   insertWonderFormulaScript(() => {
     const formulaEditor = document.createElement("wonder-editor");
-    container.insertAdjacentElement("afterbegin", formulaEditor);
+    miniTabOn.insertAdjacentElement("afterbegin", formulaEditor);
   });
 };
 
@@ -66,11 +64,24 @@ const onSalesforceButtonClick = (salesForceLI: Element, ul: Element) => {
 };
 
 const toggleWonderFormulaEditor = (shouldDisplay: boolean) => {
-  console.log("toggleWonderFormulaEditor : ", shouldDisplay);
+  const wonderFormulaEditor = document.querySelector<HTMLElement>(
+    `${firstPWizardBodyDataCellSelector} wonder-editor`,
+  );
+  const salesForceEditor = document.querySelector<HTMLElement>(
+    `${miniTabOnSelector} table`,
+  );
+
+  if (!wonderFormulaEditor || !salesForceEditor) return;
+
+  wonderFormulaEditor.setAttribute(
+    "should-display",
+    shouldDisplay ? "true" : "",
+  );
+  salesForceEditor.style.display = shouldDisplay ? "none" : "block";
 };
 
 const insertWonderFormulaButton = () => {
-  const ul = document.querySelector(".pbWizardBody table tbody > tr > td ul");
+  const ul = document.querySelector(`${firstPWizardBodyDataCellSelector} ul`);
 
   if (ul) {
     insertWonderFormulaEditor();
@@ -95,5 +106,7 @@ const insertWonderFormulaButton = () => {
 };
 
 const wonderFormulaLIId = "wonder-formula-button";
+const firstPWizardBodyDataCellSelector = ".pbWizardBody table tbody > tr > td";
+const miniTabOnSelector = `${firstPWizardBodyDataCellSelector} > div.miniTabOn`;
 
 insertWonderFormulaButton();
