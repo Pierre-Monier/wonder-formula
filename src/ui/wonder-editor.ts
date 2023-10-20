@@ -1,13 +1,18 @@
-import { LitElement, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { LitElement, html } from "lit";
+import { customElement, property } from "lit/decorators.js";
 
-@customElement('wonder-editor')
+@customElement("wonder-editor")
 export class WonderEditor extends LitElement {
-  @property({ type: String }) tutu = 'World';
+  @property({
+    attribute: "should-display",
+  })
+  shouldDisplay = false;
 
   render() {
     return html`
-    <p>Welcome to the Lit tutorial! ${this.tutu} :)</p>
+      <p style="display: ${this.shouldDisplay ? "block" : "none"}">
+        Welcome to the Lit tutorial!
+      </p>
     `;
   }
 }
