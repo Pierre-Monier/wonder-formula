@@ -1,14 +1,14 @@
 const insertWonderFormulaScript = (onload: () => void) => {
-    const dummySrc = chrome.runtime.getURL('dist/ui/wonder-editor.min.js');
-    const script = document.createElement('script');
-    script.setAttribute("type", "module");
-    script.setAttribute("src", dummySrc);
-    script.onload = () => {
+    const wonderEditorSrc = chrome.runtime.getURL('dist/ui/wonder-editor.min.js');
+    const wonderEditorScript = document.createElement('script');
+    wonderEditorScript.setAttribute("type", "module");
+    wonderEditorScript.setAttribute("src", wonderEditorSrc);
+    wonderEditorScript.onload = () => {
         onload();
     };
 
     const head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
-    head.insertBefore(script, head.lastChild);
+    head.insertBefore(wonderEditorScript, head.lastChild);
 }
 
 const insertWonderFormulaEditor = () => {
@@ -21,16 +21,70 @@ const insertWonderFormulaEditor = () => {
     });
 }
 
-const insertWonderFormulaButton = () => {
-    const formulaEditorTab = document.querySelector('.pbWizardBody table tbody > tr > td ul') as HTMLUListElement | null;
+const onButtonClick = (event: MouseEvent, wonderFormulaLI: HTMLLIElement, ul: HTMLUListElement) => {
+    const isCurrentlySelected = wonderFormulaLI.classList.contains('currentTab');
+    if (!isCurrentlySelected) {
+        const currentTab = ul.querySelector('.currentTab') as HTMLLIElement | null;
+        if (currentTab) {
+            currentTab.classList.remove('currentTab');
+            currentTab.classList.add('tertiaryPalette');
+        }
 
-    if (formulaEditorTab) {
+        wonderFormulaLI.classList.remove('tertiaryPalette')
+        wonderFormulaLI.classList.add('currentTab');
+
+        toggleWonderFormulaEditor(true)
+    }
+
+    event.preventDefault();
+}
+
+const onSalesforceButtonClick = (salesForceLI: HTMLLIElement, ul: HTMLUListElement) => {
+    salesForceLI.addEventListener('click', () => {
+        const currentTab = ul.querySelector('.currentTab') as HTMLLIElement | null;
+        if (currentTab && currentTab !== salesForceLI) {
+
+            currentTab.classList.remove('currentTab');
+            currentTab.classList.add('tertiaryPalette');
+
+            salesForceLI.classList.remove('tertiaryPalette')
+            salesForceLI.classList.add('currentTab');
+
+            if (currentTab.id === wonderFormulaLIId) {
+                toggleWonderFormulaEditor(false);
+            }
+        }
+    });
+}
+
+const toggleWonderFormulaEditor = (shouldDisplay: boolean) => {
+    console.log('toggleWonderFormulaEditor : ', shouldDisplay);
+}
+
+const insertWonderFormulaButton = () => {
+    const ul = document.querySelector('.pbWizardBody table tbody > tr > td ul') as HTMLUListElement | null;
+
+    if (ul) {
         insertWonderFormulaEditor();
 
-        const li = '<li><a href="" onclick="">Wonder Formula ✨</a></li>';
-        formulaEditorTab.insertAdjacentHTML('beforeend', li);
+        ul.querySelectorAll('li').forEach((salesForceLI) => onSalesforceButtonClick(salesForceLI, ul));
+
+        const li = document.createElement('li');
+        li.id = wonderFormulaLIId;
+        li.classList.add('tertiaryPalette');
+
+        const a = document.createElement('a');
+        a.innerText = 'Wonder Formula ✨';
+        a.setAttribute('href', 'javascript:void(0)');
+        a.addEventListener('click', (event) => onButtonClick(event, li, ul));
+
+        li.insertAdjacentElement('beforeend', a);
+
+        ul.insertAdjacentElement('beforeend', li);
     }
 }
+
+const wonderFormulaLIId = 'wonder-formula-button';
 
 
 insertWonderFormulaButton();
