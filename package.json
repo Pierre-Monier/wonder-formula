@@ -4,8 +4,7 @@
   "description": "Wonderful formula editor for Salesforce",
   "type": "module",
   "scripts": {
-    "start": "tsc -w",
-    "build": "rollup -c -w",
+    "start": "tsc -w & rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
