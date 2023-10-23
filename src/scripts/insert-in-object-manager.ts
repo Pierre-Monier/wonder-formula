@@ -17,11 +17,12 @@ const insertWonderFormulaScript = (onload: () => void) => {
 };
 
 const insertWonderFormulaEditor = (navigateToWonderEditor: () => void) => {
-  const miniTabOn = document.querySelector(miniTabOnSelector);
+  const miniTabOn = document.querySelector(`${baseSelector} div.miniTabOn`);
   if (!miniTabOn) return;
 
   insertWonderFormulaScript(() => {
     const formulaEditor = document.createElement(wonderEditorTag);
+    formulaEditor.setAttribute("page", getCurrentPage());
     miniTabOn.insertAdjacentElement("afterbegin", formulaEditor);
     navigateToWonderEditor();
   });
@@ -67,10 +68,11 @@ const onSalesforceButtonClick = (salesForceLI: Element, ul: Element) => {
 };
 
 const toggleWonderFormulaEditor = (shouldDisplay: boolean) => {
-  const wonderFormulaEditor =
-    document.querySelector<HTMLElement>(wonderEditorSelector);
+  const wonderFormulaEditor = document.querySelector<HTMLElement>(
+    `${baseSelector} ${wonderEditorTag}`,
+  );
   const salesForceEditorContainer = document.querySelector<HTMLElement>(
-    `${miniTabOnSelector} table`,
+    `${baseSelector} div.miniTabOn table`,
   );
 
   if (!wonderFormulaEditor || !salesForceEditorContainer) return;
@@ -106,10 +108,11 @@ const handleEditorsTabs = (ul: Element) => {
 };
 
 const syncEditors = (shouldDisplay: boolean) => {
-  const wonderFormulaEditor =
-    document.querySelector<WonderEditor>(wonderEditorSelector);
+  const wonderFormulaEditor = document.querySelector<WonderEditor>(
+    `${baseSelector} ${wonderEditorTag}`,
+  );
   const salesForceEditor = document.querySelector<HTMLTextAreaElement>(
-    `${miniTabOnSelector} table > tbody > tr > td div > textarea`,
+    `${baseSelector} div.miniTabOn table > tbody > tr > td div > textarea`,
   );
 
   if (!wonderFormulaEditor || !salesForceEditor) return;
@@ -123,19 +126,49 @@ const syncEditors = (shouldDisplay: boolean) => {
   }
 };
 
-const insertWonderFormulaButton = () => {
-  const ul = document.querySelector(`${firstPWizardBodyDataCellSelector} ul`);
+const insertWonderFormulaButtonInNewField = () => {
+  const ul = document.querySelector(`${newFieldBaseSelector} ul`);
 
   if (ul) {
+    baseSelector = newFieldBaseSelector;
     const navigateToWonderEditor = handleEditorsTabs(ul);
     insertWonderFormulaEditor(navigateToWonderEditor);
   }
 };
 
-const wonderFormulaLIId = "wonder-formula-button";
-const firstPWizardBodyDataCellSelector = ".pbWizardBody table tbody > tr > td";
-const miniTabOnSelector = `${firstPWizardBodyDataCellSelector} > div.miniTabOn`;
-const wonderEditorTag = `wonder-editor`;
-const wonderEditorSelector = `${firstPWizardBodyDataCellSelector} ${wonderEditorTag}`;
+const insertWonderFormulaButtonInEditField = () => {
+  const ul = document.querySelector(`${editFieldBaseSelector} ul`);
 
-insertWonderFormulaButton();
+  if (ul) {
+    baseSelector = editFieldBaseSelector;
+    const navigateToWonderEditor = handleEditorsTabs(ul);
+    insertWonderFormulaEditor(navigateToWonderEditor);
+  }
+};
+
+const newFieldBaseSelector = ".pbWizardBody table tbody > tr > td";
+const editFieldBaseSelector =
+  "div.pbBody div.pbSubsection table > tbody div.formulaEditorOuter > table > tbody";
+let baseSelector = "";
+
+enum Pages {
+  New = "new",
+  Edit = "edit",
+  Unknown = "unknown",
+}
+const getCurrentPage = () => {
+  switch (baseSelector) {
+    case newFieldBaseSelector:
+      return Pages.New;
+    case editFieldBaseSelector:
+      return Pages.Edit;
+    default:
+      return Pages.Unknown;
+  }
+};
+
+const wonderFormulaLIId = "wonder-formula-button";
+const wonderEditorTag = `wonder-editor`;
+
+insertWonderFormulaButtonInNewField();
+insertWonderFormulaButtonInEditField();
