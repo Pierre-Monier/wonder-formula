@@ -71,19 +71,19 @@ const onSalesforceButtonClick = (salesForceLI: Element, ul: Element) => {
 };
 
 const toggleWonderFormulaEditor = (shouldDisplay: boolean) => {
-  const wonderFormulaEditor = document.querySelector<HTMLElement>(
+  const wonderEditor = document.querySelector<HTMLElement>(
     `${baseSelector} ${wonderEditorTag}`,
   );
   const salesForceEditorContainer = document.querySelector<HTMLElement>(
     `${baseSelector} div.miniTabOn table`,
   );
 
-  if (!wonderFormulaEditor || !salesForceEditorContainer) return;
+  if (!wonderEditor || !salesForceEditorContainer) return;
 
   syncEditors(shouldDisplay);
 
-  wonderFormulaEditor.setAttribute(
-    "should-display",
+  wonderEditor.setAttribute(
+    shouldDisplayAttribute,
     shouldDisplay ? "true" : "",
   );
   salesForceEditorContainer.style.display = shouldDisplay ? "none" : "block";
@@ -111,19 +111,19 @@ const handleEditorsTabs = (ul: Element) => {
 };
 
 const syncEditors = (shouldDisplay: boolean) => {
-  const wonderFormulaEditor = document.querySelector<WonderEditor>(
+  const wonderEditor = document.querySelector<WonderEditor>(
     `${baseSelector} ${wonderEditorTag}`,
   );
   const salesForceEditor = document.querySelector<HTMLTextAreaElement>(
     `${baseSelector} div.miniTabOn table > tbody > tr > td div > textarea`,
   );
 
-  if (!wonderFormulaEditor || !salesForceEditor) return;
+  if (!wonderEditor || !salesForceEditor) return;
 
-  const wonderEditorValue = wonderFormulaEditor.getAttribute("value");
+  const wonderEditorValue = wonderEditor.getAttribute("value");
   const salesforceEditorValue = salesForceEditor.value;
   if (shouldDisplay) {
-    wonderFormulaEditor.setAttribute("value", salesforceEditorValue);
+    wonderEditor.setAttribute("value", salesforceEditorValue);
   } else if (wonderEditorValue) {
     salesForceEditor.value = wonderEditorValue;
   }
@@ -140,6 +140,56 @@ const rememberCurrentLink = (ul: Element) => {
   return !latestCurrentLink || latestCurrentLink === currentLink;
 };
 
+const syncEditorsBeforeSaved = () => {
+  const wonderEditor = document.querySelector(
+    `${baseSelector} ${wonderEditorTag}`,
+  );
+
+  const isWonderEditorUsed = wonderEditor?.getAttribute(shouldDisplayAttribute);
+  if (!isWonderEditorUsed) return;
+
+  syncEditors(false);
+};
+
+const registerOnSaveNew = () => {
+  const nextButtons = document.querySelectorAll(`input[name="goNext"].btn`);
+
+  nextButtons.forEach((nextButton) => {
+    nextButton.addEventListener("click", () => {
+      syncEditorsBeforeSaved();
+    });
+  });
+};
+
+const registerOnSaveEdit = () => {
+  const saveButtons = document.querySelectorAll(`input[name="save"].btn`);
+  const quickSaveButtons = document.querySelectorAll(
+    `input[name="quick_save"].btn`,
+  );
+  const buttons = [...saveButtons, ...quickSaveButtons];
+
+  buttons.forEach((saveButton) => {
+    saveButton.addEventListener("click", () => {
+      syncEditorsBeforeSaved();
+    });
+  });
+};
+
+const registerOnSaves = () => {
+  const currentPage = getCurrentPage();
+
+  switch (currentPage) {
+    case Pages.New:
+      registerOnSaveNew();
+      break;
+    case Pages.Edit:
+      registerOnSaveEdit();
+      break;
+    default:
+      break;
+  }
+};
+
 const insertWonderFormulaButton = (givenBaseSelector: string) => {
   const ul = document.querySelector(`${givenBaseSelector} ul`);
 
@@ -152,6 +202,8 @@ const insertWonderFormulaButton = (givenBaseSelector: string) => {
     insertWonderFormulaEditor(
       shouldNavigateToWonderEditor ? navigateToWonderEditor : null,
     );
+
+    registerOnSaves();
   }
 };
 
@@ -173,6 +225,7 @@ const getCurrentPage = () => {
 
 const wonderFormulaLIId = "wonder-formula-button";
 const wonderEditorTag = `wonder-editor`;
+const shouldDisplayAttribute = "should-display";
 
 const currentLinkKey = "currentLink";
 
