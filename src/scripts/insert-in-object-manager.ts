@@ -17,7 +17,9 @@ const insertWonderFormulaScript = (onload: () => void) => {
   head.insertBefore(wonderEditorScript, head.lastChild);
 };
 
-const insertWonderFormulaEditor = (navigateToWonderEditor: () => void) => {
+const insertWonderFormulaEditor = (
+  navigateToWonderEditor: (() => void) | null,
+) => {
   const miniTabOn = document.querySelector(`${baseSelector} div.miniTabOn`);
   if (!miniTabOn) return;
 
@@ -25,7 +27,7 @@ const insertWonderFormulaEditor = (navigateToWonderEditor: () => void) => {
     const formulaEditor = document.createElement(wonderEditorTag);
     formulaEditor.setAttribute("page", getCurrentPage());
     miniTabOn.insertAdjacentElement("afterbegin", formulaEditor);
-    navigateToWonderEditor();
+    navigateToWonderEditor?.();
   });
 };
 
@@ -127,23 +129,29 @@ const syncEditors = (shouldDisplay: boolean) => {
   }
 };
 
-const insertWonderFormulaButtonInNewField = () => {
-  const ul = document.querySelector(`${newFieldBaseSelector} ul`);
+// Used to do a better redirection when the user switches tabs
+const rememberCurrentLink = (ul: Element) => {
+  const latestCurrentLink = localStorage.getItem(currentLinkKey);
 
-  if (ul) {
-    baseSelector = newFieldBaseSelector;
-    const navigateToWonderEditor = handleEditorsTabs(ul);
-    insertWonderFormulaEditor(navigateToWonderEditor);
-  }
+  const currentLink = ul.querySelector(".currentTab a")?.getAttribute("title");
+
+  localStorage.setItem(currentLinkKey, currentLink || "");
+
+  return !latestCurrentLink || latestCurrentLink === currentLink;
 };
 
-const insertWonderFormulaButtonInEditField = () => {
-  const ul = document.querySelector(`${editFieldBaseSelector} ul`);
+const insertWonderFormulaButton = (givenBaseSelector: string) => {
+  const ul = document.querySelector(`${givenBaseSelector} ul`);
 
   if (ul) {
-    baseSelector = editFieldBaseSelector;
+    baseSelector = givenBaseSelector;
+
+    const shouldNavigateToWonderEditor = rememberCurrentLink(ul);
+
     const navigateToWonderEditor = handleEditorsTabs(ul);
-    insertWonderFormulaEditor(navigateToWonderEditor);
+    insertWonderFormulaEditor(
+      shouldNavigateToWonderEditor ? navigateToWonderEditor : null,
+    );
   }
 };
 
@@ -166,5 +174,7 @@ const getCurrentPage = () => {
 const wonderFormulaLIId = "wonder-formula-button";
 const wonderEditorTag = `wonder-editor`;
 
-insertWonderFormulaButtonInNewField();
-insertWonderFormulaButtonInEditField();
+const currentLinkKey = "currentLink";
+
+void insertWonderFormulaButton(newFieldBaseSelector);
+void insertWonderFormulaButton(editFieldBaseSelector);
