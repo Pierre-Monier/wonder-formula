@@ -1,5 +1,6 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import Pages from "../shared/pages";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -11,7 +12,7 @@ export class WonderEditor extends LitElement {
 
   @property({ reflect: true }) value = "";
 
-  @property({ reflect: true }) page = "";
+  @property({ reflect: true }) page = Pages.Unknown;
 
   render() {
     return html`
@@ -28,13 +29,13 @@ export class WonderEditor extends LitElement {
   }
 
   getDisplay() {
-    if (this.shouldDisplay && this.page != "unknown") return "block";
+    if (this.shouldDisplay && this.page != Pages.Unknown) return "block";
 
     return "none";
   }
 
   getMarginTop() {
-    if (this.page == "edit") return "5px";
+    if (this.page == Pages.Edit) return "5px";
 
     return "0px";
   }

@@ -1,3 +1,4 @@
+import Pages from "../shared/pages";
 import { WonderEditor } from "../ui/wonder-editor";
 
 const insertWonderFormulaScript = (onload: () => void) => {
@@ -151,11 +152,6 @@ const editFieldBaseSelector =
   "div.pbBody div.pbSubsection table > tbody div.formulaEditorOuter > table > tbody";
 let baseSelector = "";
 
-enum Pages {
-  New = "new",
-  Edit = "edit",
-  Unknown = "unknown",
-}
 const getCurrentPage = () => {
   switch (baseSelector) {
     case newFieldBaseSelector:
