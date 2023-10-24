@@ -21,7 +21,7 @@ const createConfig = (filePath) => (
 
 const config = [
   createConfig('ui/wonder-editor'),
-  createConfig('scripts/insert-in-object-manager'),
+  createConfig('scripts/insert-in-object-manager/index'),
 ];
 
 export default config;
