@@ -3,5 +3,4 @@ enum Pages {
   Edit = "edit",
   Unknown = "unknown",
 }
-
 export default Pages;

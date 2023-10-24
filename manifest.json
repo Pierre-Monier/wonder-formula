@@ -7,7 +7,7 @@
         {
             "all_frames": true,
             "js": [
-                "dist/scripts/insert-in-object-manager.min.js"
+                "dist/scripts/insert-in-object-manager/index.min.js"
             ],
             "matches": [
                 "*://*.salesforce.com/**"
