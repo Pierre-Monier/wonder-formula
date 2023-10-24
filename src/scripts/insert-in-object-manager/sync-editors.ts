@@ -1,7 +1,8 @@
+import { WonderEditor } from "../../ui/wonder-editor";
 import data from "./data";
 
 export const syncEditors = (shouldDisplay: boolean) => {
-  const wonderEditor = document.querySelector(
+  const wonderEditor = document.querySelector<WonderEditor>(
     `${data.baseSelector} ${data.wonderEditorTag}`,
   );
   const salesForceEditor = document.querySelector<HTMLTextAreaElement>(
@@ -10,10 +11,10 @@ export const syncEditors = (shouldDisplay: boolean) => {
 
   if (!wonderEditor || !salesForceEditor) return;
 
-  const wonderEditorValue = wonderEditor.getAttribute("value");
+  const wonderEditorValue = wonderEditor.getValue();
   const salesforceEditorValue = salesForceEditor.value;
   if (shouldDisplay) {
-    wonderEditor.setAttribute("value", salesforceEditorValue);
+    wonderEditor.setValue(salesforceEditorValue);
   } else if (wonderEditorValue) {
     salesForceEditor.value = wonderEditorValue;
   }
