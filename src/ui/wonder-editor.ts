@@ -1,12 +1,31 @@
-import { LitElement, html } from "lit";
+import { LitElement, css, html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import Pages from "../shared/pages";
 import { EditorView } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { basicSetup } from "codemirror";
+import { espresso } from "thememirror";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
+  static styles = css`
+    .cm-content {
+      height: 20em;
+    }
+
+    .cm-gutters {
+      height: 20em !important;
+    }
+
+    .cm-scroller {
+      overflow: auto;
+    }
+
+    .cm-focused {
+      outline: none !important;
+    }
+  `;
+
   @property({
     attribute: "should-display",
     reflect: true,
@@ -19,7 +38,7 @@ export class WonderEditor extends LitElement {
   _editor!: HTMLDivElement;
 
   state = EditorState.create({
-    extensions: [basicSetup],
+    extensions: [basicSetup, espresso],
   });
 
   private _initValue?: string;
