@@ -13,9 +13,10 @@ export const syncEditors = (shouldDisplay: boolean) => {
 
   const wonderEditorValue = wonderEditor.getValue();
   const salesforceEditorValue = salesForceEditor.value;
+
   if (shouldDisplay) {
     wonderEditor.setValue(salesforceEditorValue);
-  } else if (wonderEditorValue) {
+  } else {
     salesForceEditor.value = wonderEditorValue;
   }
 };
