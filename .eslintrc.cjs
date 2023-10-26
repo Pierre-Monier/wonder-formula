@@ -11,5 +11,8 @@ module.exports = {
         tsconfigRootDir: __dirname,
       },
     root: true,
-    "ignorePatterns": ["*.js", "*.cjs"]
+    "ignorePatterns": ["*.js", "*.cjs", 
+    // We ignore parser because it is auto generated
+    "src/lang-sformula/parser.ts",
+  ]
   };
