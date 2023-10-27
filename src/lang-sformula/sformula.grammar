@@ -1,7 +1,9 @@
 @top Program { expression* }
 
 
-expression { Identifier | Number | String | Operator }
+expression { Identifier | Number | String | Operator | Function }
+
+Function { "(" expression* ")" }
 
 @skip { space }
 

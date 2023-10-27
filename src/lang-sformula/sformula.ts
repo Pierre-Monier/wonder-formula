@@ -1,5 +1,5 @@
 import { parser } from "./parser";
-import { foldNodeProp, foldInside, indentNodeProp } from "@codemirror/language";
+import { foldNodeProp, indentNodeProp } from "@codemirror/language";
 import { styleTags, tags as t } from "@lezer/highlight";
 import { LRLanguage } from "@codemirror/language";
 import { completeFromList } from "@codemirror/autocomplete";
@@ -14,13 +14,13 @@ const parserWithMetadata = parser.configure({
       String: t.string,
       Operator: t.operator,
       "( )": t.paren,
+      Function: t.function(t.variableName),
     }),
     indentNodeProp.add({
-      Application: (context) =>
-        context.column(context.node.from) + context.unit,
+      Function: (context) => context.column(context.node.from) + context.unit,
     }),
     foldNodeProp.add({
-      Application: foldInside,
+      Function: (node) => ({ from: node.from + 1, to: node.to - 1 }),
     }),
   ],
 });
