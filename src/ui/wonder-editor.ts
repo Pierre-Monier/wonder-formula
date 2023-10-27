@@ -5,6 +5,7 @@ import { EditorView } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { basicSetup } from "codemirror";
 import { espresso } from "thememirror";
+import { sformula } from "../lang-sformula/sformula";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -38,7 +39,7 @@ export class WonderEditor extends LitElement {
   _editor!: HTMLDivElement;
 
   state = EditorState.create({
-    extensions: [basicSetup, espresso],
+    extensions: [basicSetup, espresso, sformula()],
   });
 
   private _initValue?: string;

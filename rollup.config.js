@@ -1,5 +1,6 @@
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
+import {lezer} from "@lezer/generator/rollup"
 
 const createConfig = (filePath) => (
   {
@@ -19,10 +20,21 @@ const createConfig = (filePath) => (
   }
 );
 
+const createLangSFormulaConfig = () => ({
+  input: "./src/lang-sformula/sformula.grammar",
+  output: {
+    format: "es",
+    file: "./src/lang-sformula/parser.ts"
+  },
+  external: ["@lezer/lr", "@lezer/highlight"],
+  plugins: [lezer()]
+});
+
 const config = [
   createConfig('ui/wonder-editor'),
   createConfig('scripts/insert-in-object-manager/index'),
   createConfig('scripts/content-script'),
+  createLangSFormulaConfig(),
 ];
 
 export default config;

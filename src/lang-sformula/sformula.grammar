@@ -1,0 +1,14 @@
+@top Program { expression* }
+
+
+expression { Identifier | Number | String | Operator }
+
+@skip { space }
+
+@tokens {
+  space { @whitespace+ }
+  Operator { "+"|"-"|"*"|"/"|"^"|"="|"=="|"<>"|"!="|"<"|">"|"<="|">="|"&&"|"&"|"||" }
+  String { '"' !["]* '"' | "'" ![']* "'" }
+  Number { $[0-9]+ }
+  Identifier { $[A-Za-z_.]+ }
+}
