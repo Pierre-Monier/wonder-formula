@@ -1,12 +1,14 @@
-@top File { (Identifier | Number | String)+ }
+@top Program { expression* }
+
+
+expression { Identifier | Number | String | Operator }
 
 @skip { space }
 
 @tokens {
   space { @whitespace+ }
-  Identifier { $[A-Za-z_]+ }
+  Operator { "+"|"-"|"*"|"/"|"^"|"="|"=="|"<>"|"!="|"<"|">"|"<="|">="|"&&"|"&"|"||" }
+  String { '"' !["]* '"' | "'" ![']* "'" }
   Number { $[0-9]+ }
-  String { '"' !["]* '"' }
+  Identifier { $[A-Za-z_.]+ }
 }
-
-@external propSource highlighting from "./highlight.ts"

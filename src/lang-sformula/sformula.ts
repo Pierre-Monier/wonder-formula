@@ -4,6 +4,7 @@ import { styleTags, tags as t } from "@lezer/highlight";
 import { LRLanguage } from "@codemirror/language";
 import { completeFromList } from "@codemirror/autocomplete";
 import { LanguageSupport } from "@codemirror/language";
+import functions from "./function";
 
 const parserWithMetadata = parser.configure({
   props: [
@@ -11,7 +12,7 @@ const parserWithMetadata = parser.configure({
       Identifier: t.variableName,
       Boolean: t.bool,
       String: t.string,
-      LineComment: t.lineComment,
+      Operator: t.operator,
       "( )": t.paren,
     }),
     indentNodeProp.add({
@@ -26,20 +27,12 @@ const parserWithMetadata = parser.configure({
 
 export const sformulaLanguage = LRLanguage.define({
   parser: parserWithMetadata,
-  languageData: {
-    commentTokens: { line: ";" },
-  },
 });
 
 export const sformulaCompletion = sformulaLanguage.data.of({
-  autocomplete: completeFromList([
-    { label: "defun", type: "keyword" },
-    { label: "defvar", type: "keyword" },
-    { label: "let", type: "keyword" },
-    { label: "cons", type: "function" },
-    { label: "car", type: "function" },
-    { label: "cdr", type: "function" },
-  ]),
+  autocomplete: completeFromList(
+    functions.map((e) => ({ label: e, type: "function" })),
+  ),
 });
 
 export const sformula = () =>
