@@ -5,7 +5,7 @@ import { EditorView } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { basicSetup } from "codemirror";
 import { espresso } from "thememirror";
-import { sformula } from "../lang-sformula/sformula";
+import { formatSource, sformula } from "../lang-sformula";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -65,12 +65,29 @@ export class WonderEditor extends LitElement {
     return this._view;
   }
 
+  protected firstUpdated(): void {
+    if (!this.view) {
+      console.error("View is not initialized yet");
+      return;
+    }
+
+    this._editor.appendChild(this.view.dom);
+    this.addEventListener("keydown", (e) => {
+      const { ctrlKey, metaKey, code } = e;
+
+      if (code === "KeyS" && (ctrlKey || metaKey)) {
+        e.preventDefault();
+        void this.format();
+      }
+    });
+  }
+
   getValue() {
     const currentValue = this.view?.state.doc.toString() ?? "";
     return currentValue;
   }
 
-  setValue(value: string) {
+  setValue(value: string, cursorOffset?: number) {
     if (!this.view) {
       this._initValue = value;
       return;
@@ -82,16 +99,32 @@ export class WonderEditor extends LitElement {
 
     this.view.dispatch({
       changes: { from: 0, to: currentValue.length, insert: value },
+      selection:
+        cursorOffset === undefined
+          ? undefined
+          : { anchor: cursorOffset, head: cursorOffset },
     });
   }
 
-  protected firstUpdated(): void {
-    if (!this.view) {
-      console.error("View is not initialized yet");
-      return;
-    }
+  private async format() {
+    if (!this.view) return;
 
-    this._editor.appendChild(this.view.dom);
+    const cursorOffset = this.view.state.selection.main.head;
+
+    const formattedValue = await formatSource(this.getValue(), cursorOffset);
+
+    this.setValue(formattedValue.formatted, formattedValue.cursorOffset);
+  }
+
+  render() {
+    return html`
+      <div
+        style="display: ${this.getDisplay()}; margin-top: ${this.getMarginTop()};}"
+        id="editor"
+      >
+        <button @click=${() => this.format()}>Format</button>
+      </div>
+    `;
   }
 
   private getDisplay() {
@@ -104,14 +137,5 @@ export class WonderEditor extends LitElement {
     if (this.page === Pages.Edit) return "5px";
 
     return "0px";
-  }
-
-  render() {
-    return html`
-      <div
-        style="display: ${this.getDisplay()}; margin-top: ${this.getMarginTop()};}"
-        id="editor"
-      ></div>
-    `;
   }
 }
