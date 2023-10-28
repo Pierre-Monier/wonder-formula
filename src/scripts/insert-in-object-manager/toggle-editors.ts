@@ -1,13 +1,10 @@
 import data from "./data";
+import { getSalesforceEditorContainer, getWonderEditor } from "./get-editors";
 import { syncEditors } from "./sync-editors";
 
 export const toggleWonderFormulaEditor = (shouldDisplay: boolean) => {
-  const wonderEditor = document.querySelector<HTMLElement>(
-    `${data.baseSelector} ${data.wonderEditorTag}`,
-  );
-  const salesForceEditorContainer = document.querySelector<HTMLElement>(
-    `${data.baseSelector} div.miniTabOn table`,
-  );
+  const wonderEditor = getWonderEditor();
+  const salesForceEditorContainer = getSalesforceEditorContainer();
 
   if (!wonderEditor || !salesForceEditorContainer) return;
 

@@ -1,4 +1,6 @@
+import { WonderEditor } from "../../ui/wonder-editor";
 import data from "./data";
+import { getCheckSyntaxData } from "./get-check-syntax-data";
 import { getCurrentPage } from "./get-current-page";
 import { handleEditorsTabs, registerOnSaves } from "./handle-event";
 import { rememberCurrentLink } from "./remember-link";
@@ -11,10 +13,17 @@ const insertWonderFormulaEditor = (
   );
   if (!miniTabOn) return;
 
-  const formulaEditor = document.createElement(data.wonderEditorTag);
+  const formulaEditor = document.createElement(
+    data.wonderEditorTag,
+  ) as WonderEditor;
   formulaEditor.setAttribute("page", getCurrentPage());
   miniTabOn.insertAdjacentElement("afterbegin", formulaEditor);
   navigateToWonderEditor?.();
+
+  const checkSyntaxData = getCheckSyntaxData();
+  if (!checkSyntaxData) return;
+
+  formulaEditor.setCheckSyntaxData(checkSyntaxData);
 };
 
 export const insertWonderFormulaButton = (givenBaseSelector: string) => {
