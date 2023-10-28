@@ -6,7 +6,7 @@ export const formatSource = (source: string, cursorOffset?: number | null) =>
   formatWithCursor(source, {
     parser: "babel",
     tabWidth: 2,
-    useTabs: true,
+    useTabs: false,
     cursorOffset: cursorOffset ?? 0,
     plugins: [estree, babel],
   });

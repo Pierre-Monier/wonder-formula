@@ -72,6 +72,14 @@ export class WonderEditor extends LitElement {
     }
 
     this._editor.appendChild(this.view.dom);
+    this.addEventListener("keydown", (e) => {
+      const { ctrlKey, metaKey, code } = e;
+
+      if (code === "KeyS" && (ctrlKey || metaKey)) {
+        e.preventDefault();
+        void this.format();
+      }
+    });
   }
 
   getValue() {
@@ -79,7 +87,7 @@ export class WonderEditor extends LitElement {
     return currentValue;
   }
 
-  setValue(value: string) {
+  setValue(value: string, cursorOffset?: number) {
     if (!this.view) {
       this._initValue = value;
       return;
@@ -91,26 +99,31 @@ export class WonderEditor extends LitElement {
 
     this.view.dispatch({
       changes: { from: 0, to: currentValue.length, insert: value },
+      selection:
+        cursorOffset === undefined
+          ? undefined
+          : { anchor: cursorOffset, head: cursorOffset },
     });
   }
 
   private async format() {
     if (!this.view) return;
 
-    const currentCursor = this.view.state.selection.main;
-    const cursorOffset = currentCursor.from;
+    const cursorOffset = this.view.state.selection.main.head;
+
     const formattedValue = await formatSource(this.getValue(), cursorOffset);
 
-    this.setValue(formattedValue.formatted);
+    this.setValue(formattedValue.formatted, formattedValue.cursorOffset);
   }
 
   render() {
     return html`
-      <button @click=${() => this.format()}>Format</button>
       <div
         style="display: ${this.getDisplay()}; margin-top: ${this.getMarginTop()};}"
         id="editor"
-      ></div>
+      >
+        <button @click=${() => this.format()}>Format</button>
+      </div>
     `;
   }
 
