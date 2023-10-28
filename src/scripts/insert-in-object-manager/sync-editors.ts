@@ -1,13 +1,9 @@
-import { WonderEditor } from "../../ui/wonder-editor";
 import data from "./data";
+import { getSalesForceEditor, getWonderEditor } from "./get-editors";
 
 export const syncEditors = (shouldDisplay: boolean) => {
-  const wonderEditor = document.querySelector<WonderEditor>(
-    `${data.baseSelector} ${data.wonderEditorTag}`,
-  );
-  const salesForceEditor = document.querySelector<HTMLTextAreaElement>(
-    `${data.baseSelector} div.miniTabOn table > tbody > tr > td div > textarea`,
-  );
+  const wonderEditor = getWonderEditor();
+  const salesForceEditor = getSalesForceEditor();
 
   if (!wonderEditor || !salesForceEditor) return;
 
