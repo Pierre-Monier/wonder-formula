@@ -5,7 +5,7 @@ import { EditorView } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { basicSetup } from "codemirror";
 import { espresso } from "thememirror";
-import { sformula } from "../lang-sformula/sformula";
+import { formatSource, sformula } from "../lang-sformula";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -65,6 +65,15 @@ export class WonderEditor extends LitElement {
     return this._view;
   }
 
+  protected firstUpdated(): void {
+    if (!this.view) {
+      console.error("View is not initialized yet");
+      return;
+    }
+
+    this._editor.appendChild(this.view.dom);
+  }
+
   getValue() {
     const currentValue = this.view?.state.doc.toString() ?? "";
     return currentValue;
@@ -85,13 +94,24 @@ export class WonderEditor extends LitElement {
     });
   }
 
-  protected firstUpdated(): void {
-    if (!this.view) {
-      console.error("View is not initialized yet");
-      return;
-    }
+  private async format() {
+    if (!this.view) return;
 
-    this._editor.appendChild(this.view.dom);
+    const currentCursor = this.view.state.selection.main;
+    const cursorOffset = currentCursor.from;
+    const formattedValue = await formatSource(this.getValue(), cursorOffset);
+
+    this.setValue(formattedValue.formatted);
+  }
+
+  render() {
+    return html`
+      <button @click=${() => this.format()}>Format</button>
+      <div
+        style="display: ${this.getDisplay()}; margin-top: ${this.getMarginTop()};}"
+        id="editor"
+      ></div>
+    `;
   }
 
   private getDisplay() {
@@ -104,14 +124,5 @@ export class WonderEditor extends LitElement {
     if (this.page === Pages.Edit) return "5px";
 
     return "0px";
-  }
-
-  render() {
-    return html`
-      <div
-        style="display: ${this.getDisplay()}; margin-top: ${this.getMarginTop()};}"
-        id="editor"
-      ></div>
-    `;
   }
 }
