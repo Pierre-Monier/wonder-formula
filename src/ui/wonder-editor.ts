@@ -1,8 +1,9 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import Pages from "../shared/pages";
-import { EditorView } from "@codemirror/view";
+import { EditorView, keymap } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
+import { indentWithTab } from "@codemirror/commands";
 import { basicSetup } from "codemirror";
 import { espresso } from "thememirror";
 import { formatSource, sformula } from "../lang-sformula";
@@ -71,13 +72,14 @@ export class WonderEditor extends LitElement {
   private _editorState = EditorState.create({
     extensions: [
       basicSetup,
-      espresso,
-      sformula(),
+      keymap.of([indentWithTab]),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           this._autoFormat();
         }
       }),
+      sformula(),
+      espresso,
     ],
   });
 
