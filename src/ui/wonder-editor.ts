@@ -27,6 +27,31 @@ export class WonderEditor extends LitElement {
     }
   `;
 
+  private static get _loadingValidationStatus() {
+    return {
+      currentStatus: ValidationState.Loading,
+      text: "...",
+    };
+  }
+
+  private static get _defaultErrorValidationStatus() {
+    return {
+      currentStatus: ValidationState.Invalid,
+      text: "We can't check the syntax of this formula. Please use the default Salesforce editor.",
+    };
+  }
+
+  private static get _emptyValueErrorValidationStatus() {
+    return {
+      currentStatus: ValidationState.Invalid,
+      text: "Formula is empty.",
+    };
+  }
+
+  private static get _autoFormatBounce() {
+    return 600;
+  }
+
   @property({
     attribute: "should-display",
     reflect: true,
@@ -38,41 +63,38 @@ export class WonderEditor extends LitElement {
   @query("#editor")
   _editor!: HTMLDivElement;
 
+  private _validationTimeout?: NodeJS.Timeout;
+
   @state()
-  private _validationStatus = WonderEditor.loadingValidationStatus;
+  private _validationStatus = WonderEditor._loadingValidationStatus;
 
-  static get loadingValidationStatus() {
-    return {
-      currentStatus: ValidationState.Loading,
-      text: "...",
-    };
-  }
-
-  static get defaultErrorValidationStatus() {
-    return {
-      currentStatus: ValidationState.Invalid,
-      text: "We can't check the syntax of this formula. Please use the default Salesforce editor.",
-    };
-  }
-
-  state = EditorState.create({
-    extensions: [basicSetup, espresso, sformula()],
+  private _editorState = EditorState.create({
+    extensions: [
+      basicSetup,
+      espresso,
+      sformula(),
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          this._autoFormat();
+        }
+      }),
+    ],
   });
 
   private _initValue?: string;
 
   private _checkSyntaxData?: CheckSyntaxDate;
 
-  private _view?: EditorView;
+  private __view?: EditorView;
 
-  get view() {
+  private get _view() {
     if (this._editor === null) {
       return;
     }
 
-    if (!this._view) {
-      this._view = new EditorView({
-        state: this.state,
+    if (!this.__view) {
+      this.__view = new EditorView({
+        state: this._editorState,
         parent: this._editor,
       });
 
@@ -81,16 +103,21 @@ export class WonderEditor extends LitElement {
       }
     }
 
-    return this._view;
+    return this.__view;
   }
 
   protected firstUpdated(): void {
-    if (!this.view) {
+    if (!this._view) {
       console.error("View is not initialized yet");
       return;
     }
 
-    this._editor.appendChild(this.view.dom);
+    this._editor.appendChild(this._view.dom);
+    this._registerKeyboardEvents();
+    void this._validate();
+  }
+
+  private _registerKeyboardEvents() {
     this.addEventListener("keydown", (e) => {
       const { ctrlKey, metaKey, code } = e;
 
@@ -99,16 +126,15 @@ export class WonderEditor extends LitElement {
         void this._format();
       }
     });
-    void this._validate();
   }
 
   getValue() {
-    const currentValue = this.view?.state.doc.toString() ?? "";
+    const currentValue = this._view?.state.doc.toString() ?? "";
     return currentValue;
   }
 
   setValue(value: string, cursorOffset?: number) {
-    if (!this.view) {
+    if (!this._view) {
       this._initValue = value;
       return;
     }
@@ -117,7 +143,7 @@ export class WonderEditor extends LitElement {
 
     if (currentValue === value) return;
 
-    this.view.dispatch({
+    this._view.dispatch({
       changes: { from: 0, to: currentValue.length, insert: value },
       selection:
         cursorOffset === undefined
@@ -126,10 +152,17 @@ export class WonderEditor extends LitElement {
     });
   }
 
-  private async _format() {
-    if (!this.view) return;
+  private _autoFormat() {
+    clearTimeout(this._validationTimeout);
+    this._validationTimeout = setTimeout(() => {
+      void this._validate();
+    }, WonderEditor._autoFormatBounce);
+  }
 
-    const cursorOffset = this.view.state.selection.main.head;
+  private async _format() {
+    if (!this._view) return;
+
+    const cursorOffset = this._view.state.selection.main.head;
 
     const formattedValue = await formatSource(this.getValue(), cursorOffset);
 
@@ -142,11 +175,11 @@ export class WonderEditor extends LitElement {
 
   private async _validate() {
     if (!this._checkSyntaxData) {
-      this._validationStatus = WonderEditor.defaultErrorValidationStatus;
+      this._validationStatus = WonderEditor._defaultErrorValidationStatus;
       return;
     }
 
-    this._validationStatus = WonderEditor.loadingValidationStatus;
+    this._validationStatus = WonderEditor._loadingValidationStatus;
 
     const formData = this._checkSyntaxData.getFormData();
 
@@ -166,7 +199,8 @@ export class WonderEditor extends LitElement {
       newDocument.querySelector<HTMLSpanElement>("#validationStatus");
 
     if (!validationStatus) {
-      this._validationStatus = WonderEditor.defaultErrorValidationStatus;
+      this._validationStatus = WonderEditor._defaultErrorValidationStatus;
+
       return;
     }
 
@@ -174,8 +208,11 @@ export class WonderEditor extends LitElement {
     const isValid = validationDataElement?.classList.contains("validStyle");
     const text = validationDataElement?.textContent;
 
-    if (!text) {
-      this._validationStatus = WonderEditor.defaultErrorValidationStatus;
+    if (!text && !this.getValue()) {
+      this._validationStatus = WonderEditor._emptyValueErrorValidationStatus;
+      return;
+    } else if (!text) {
+      this._validationStatus = WonderEditor._defaultErrorValidationStatus;
       return;
     }
 
