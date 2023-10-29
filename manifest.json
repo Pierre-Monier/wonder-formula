@@ -17,7 +17,7 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "dist/ui/wonder-editor.min.js"
+                "dist/ui/editor.min.js"
             ],
             "matches": [
                 "https://*.salesforce.com/*"

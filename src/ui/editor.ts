@@ -7,6 +7,10 @@ import { indentWithTab } from "@codemirror/commands";
 import { basicSetup } from "codemirror";
 import { espresso } from "thememirror";
 import { formatSource, sformula } from "../lang-sformula";
+import { FieldTreeNode } from "../shared/field-tree";
+
+import "./button";
+import "./validation-status";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -87,6 +91,14 @@ export class WonderEditor extends LitElement {
 
   private _checkSyntaxData?: CheckSyntaxDate;
 
+  @state()
+  // TODO: this should be pass by content script
+  private _fieldTreeRoot?: FieldTreeNode[];
+
+  setFieldTreeRoot(fieldTreeRoot: FieldTreeNode[]) {
+    this._fieldTreeRoot = fieldTreeRoot;
+  }
+
   private __view?: EditorView;
 
   private get _view() {
@@ -117,6 +129,8 @@ export class WonderEditor extends LitElement {
     this._editor.appendChild(this._view.dom);
     this._registerKeyboardEvents();
     void this._validate();
+
+    console.log(this._fieldTreeRoot);
   }
 
   private _registerKeyboardEvents() {
@@ -162,7 +176,10 @@ export class WonderEditor extends LitElement {
   }
 
   private async _format() {
-    if (!this._view) return;
+    if (!this._view) {
+      console.error("Formatting but view is not initialized yet");
+      return;
+    }
 
     const cursorOffset = this._view.state.selection.main.head;
 
@@ -178,6 +195,7 @@ export class WonderEditor extends LitElement {
   private async _validate() {
     if (!this._checkSyntaxData) {
       this._validationStatus = WonderEditor._defaultErrorValidationStatus;
+      console.error("Validate but validation data is not set");
       return;
     }
 
@@ -202,7 +220,7 @@ export class WonderEditor extends LitElement {
 
     if (!validationStatus) {
       this._validationStatus = WonderEditor._defaultErrorValidationStatus;
-
+      console.error("Validate but validation status is not found");
       return;
     }
 
@@ -215,6 +233,7 @@ export class WonderEditor extends LitElement {
       return;
     } else if (!text) {
       this._validationStatus = WonderEditor._defaultErrorValidationStatus;
+      console.error("Validate but validation text is not found");
       return;
     }
 
@@ -228,13 +247,15 @@ export class WonderEditor extends LitElement {
     return html`
       <div
         style="display: ${this._getDisplay()}; margin-top: ${this._getMarginTop()};}"
-        id="editor"
       >
-        <button @click=${() => this._format()}>Format</button>
-        <button @click=${() => this._validate()}>Check Syntax</button>
-        <span style="color: ${this._getValidationColorText()}"
-          >${this._validationStatus.text}</span
-        >
+        <wonder-button .onclick=${() => this._format()}>
+          Format <i>(Ctrl + s)</i>
+        </wonder-button>
+        <div id="editor"></div>
+        <wonder-validation-status
+          .text=${this._validationStatus.text}
+          .currentStatus=${this._validationStatus.currentStatus}
+        ></wonder-validation-status>
       </div>
     `;
   }
@@ -250,17 +271,6 @@ export class WonderEditor extends LitElement {
 
     return "0px";
   }
-
-  private _getValidationColorText() {
-    switch (this._validationStatus.currentStatus) {
-      case ValidationState.Loading:
-        return "grey";
-      case ValidationState.Valid:
-        return "green";
-      case ValidationState.Invalid:
-        return "red";
-    }
-  }
 }
 
 type CheckSyntaxDate = {
@@ -270,7 +280,7 @@ type CheckSyntaxDate = {
   valueKey: string;
 };
 
-enum ValidationState {
+export enum ValidationState {
   Loading,
   Valid,
   Invalid,
