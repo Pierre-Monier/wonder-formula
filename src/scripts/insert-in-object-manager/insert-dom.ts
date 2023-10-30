@@ -17,19 +17,14 @@ const insertWonderFormulaEditor = (
   const formulaEditor = document.createElement(
     data.wonderEditorTag,
   ) as WonderEditor;
-  formulaEditor.setAttribute("page", getCurrentPage());
   miniTabOn.insertAdjacentElement("afterbegin", formulaEditor);
   navigateToWonderEditor?.();
 
   const checkSyntaxData = getCheckSyntaxData();
-  if (checkSyntaxData) {
-    formulaEditor.setCheckSyntaxData(checkSyntaxData);
-  }
-
   const fieldTreeRoot = getFieldTreeRoot();
-  if (fieldTreeRoot) {
-    formulaEditor.setFieldTreeRoot(fieldTreeRoot);
-  }
+  const currentPage = getCurrentPage();
+
+  formulaEditor.init(fieldTreeRoot, checkSyntaxData, currentPage);
 };
 
 export const insertWonderFormulaButton = (givenBaseSelector: string) => {
