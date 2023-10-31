@@ -1,8 +1,7 @@
 import { WonderEditor } from "../../ui/editor";
 import data from "./data";
-import { getCheckSyntaxData } from "./get-check-syntax-data";
-import { getCurrentPage } from "./get-current-page";
-import { getFieldTreeRoot } from "./get-field-tree";
+import { getWonderStoreData } from "./get-wonder-store-data";
+
 import { handleEditorsTabs, registerOnSaves } from "./handle-event";
 import { rememberCurrentLink } from "./remember-link";
 
@@ -20,11 +19,8 @@ const insertWonderFormulaEditor = (
   miniTabOn.insertAdjacentElement("afterbegin", formulaEditor);
   navigateToWonderEditor?.();
 
-  const checkSyntaxData = getCheckSyntaxData();
-  const fieldTreeRoot = getFieldTreeRoot();
-  const currentPage = getCurrentPage();
-
-  formulaEditor.init(fieldTreeRoot, checkSyntaxData, currentPage);
+  const wonderStoreData = getWonderStoreData();
+  formulaEditor.init(wonderStoreData);
 };
 
 export const insertWonderFormulaButton = (givenBaseSelector: string) => {
