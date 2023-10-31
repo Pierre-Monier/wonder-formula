@@ -31,7 +31,7 @@ const createLangSFormulaConfig = () => ({
 });
 
 const config = [
-  createConfig('ui/wonder-editor'),
+  createConfig('ui/editor'),
   createConfig('scripts/insert-in-object-manager/index'),
   createConfig('scripts/content-script'),
   createLangSFormulaConfig(),

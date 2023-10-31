@@ -1,4 +1,4 @@
-import { WonderEditor } from "../../ui/wonder-editor";
+import { WonderEditor } from "../../ui/editor";
 import data from "./data";
 
 export const getSalesForceEditor = () =>

@@ -1,7 +1,8 @@
-import { WonderEditor } from "../../ui/wonder-editor";
+import { WonderEditor } from "../../ui/editor";
 import data from "./data";
 import { getCheckSyntaxData } from "./get-check-syntax-data";
 import { getCurrentPage } from "./get-current-page";
+import { getFieldTreeRoot } from "./get-field-tree";
 import { handleEditorsTabs, registerOnSaves } from "./handle-event";
 import { rememberCurrentLink } from "./remember-link";
 
@@ -16,14 +17,14 @@ const insertWonderFormulaEditor = (
   const formulaEditor = document.createElement(
     data.wonderEditorTag,
   ) as WonderEditor;
-  formulaEditor.setAttribute("page", getCurrentPage());
   miniTabOn.insertAdjacentElement("afterbegin", formulaEditor);
   navigateToWonderEditor?.();
 
   const checkSyntaxData = getCheckSyntaxData();
-  if (!checkSyntaxData) return;
+  const fieldTreeRoot = getFieldTreeRoot();
+  const currentPage = getCurrentPage();
 
-  formulaEditor.setCheckSyntaxData(checkSyntaxData);
+  formulaEditor.init(fieldTreeRoot, checkSyntaxData, currentPage);
 };
 
 export const insertWonderFormulaButton = (givenBaseSelector: string) => {
@@ -59,7 +60,7 @@ export const insertInObjectManager = () => {
 };
 
 export const insertWonderEditorSrc = (onload: () => void) => {
-  const wonderEditorSrc = chrome.runtime.getURL("dist/ui/wonder-editor.min.js");
+  const wonderEditorSrc = chrome.runtime.getURL("dist/ui/editor.min.js");
   const wonderEditorScript = document.createElement("script");
   wonderEditorScript.setAttribute("type", "module");
   wonderEditorScript.setAttribute("src", wonderEditorSrc);
