@@ -11,11 +11,12 @@ import { FieldTreeNode } from "../shared/field-tree";
 import { BULMA_CSS } from "./bulma";
 import { CheckSyntaxData } from "./type";
 import { WonderValidationStatus } from "./validation-status";
+import { wonderStore } from "./store";
 
 import "./button";
 import "./sidebar";
 import "./validation-status";
-import { wonderStore } from "./store";
+import "./resource-list";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -154,6 +155,27 @@ export class WonderEditor extends LitElement {
         cursorOffset === undefined
           ? undefined
           : { anchor: cursorOffset, head: cursorOffset },
+    });
+  }
+
+  insertResource(resource: string) {
+    if (!this._view) {
+      console.error("Inserting resource but view is not initialized yet");
+      return;
+    }
+
+    const { head, anchor } = this._view.state.selection.main;
+    const from = Math.min(head, anchor);
+    const to = Math.max(head, anchor);
+    const newCursorOffset = from + resource.length;
+
+    this._view.dispatch({
+      changes: {
+        from: from,
+        to: to,
+        insert: resource,
+      },
+      selection: { anchor: newCursorOffset, head: newCursorOffset },
     });
   }
 
