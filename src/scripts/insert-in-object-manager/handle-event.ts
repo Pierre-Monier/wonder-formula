@@ -1,6 +1,6 @@
-import Pages from "../../shared/pages";
+import { Pages } from "../../shared/wonder-store";
 import data from "./data";
-import { getCurrentPage } from "./get-current-page";
+import { getCurrentPage } from "./get-wonder-store-data";
 import { syncEditorsBeforeSaved } from "./sync-editors";
 import { toggleWonderFormulaEditor } from "./toggle-editors";
 

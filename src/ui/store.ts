@@ -1,9 +1,14 @@
-import { FieldTreeNode } from "../shared/field-tree";
-import Pages from "../shared/pages";
-import { CheckSyntaxData } from "./type";
+import {
+  CheckSyntaxData,
+  FieldTreeNode,
+  OperatorTreeNode,
+  Pages,
+  WonderStore,
+} from "../shared/wonder-store";
 
-export const wonderStore = {
-  checkSyntaxData: null as CheckSyntaxData | null,
+export const wonderStore: WonderStore = {
+  checkSyntaxData: undefined as CheckSyntaxData | undefined,
   currentPage: Pages.Unknown,
-  fieldTreeRoot: null as FieldTreeNode[] | null,
+  fieldTreeRoot: undefined as FieldTreeNode[] | undefined,
+  operatorTreeRoot: undefined as OperatorTreeNode[] | undefined,
 };

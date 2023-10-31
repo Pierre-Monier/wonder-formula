@@ -1,15 +1,12 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
-import Pages from "../shared/pages";
 import { EditorView, keymap, showPanel } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { indentWithTab } from "@codemirror/commands";
 import { basicSetup } from "codemirror";
 import { espresso } from "thememirror";
 import { formatSource, sformula } from "../lang-sformula";
-import { FieldTreeNode } from "../shared/field-tree";
 import { BULMA_CSS } from "./bulma";
-import { CheckSyntaxData } from "./type";
 import { WonderValidationStatus } from "./validation-status";
 import { wonderStore } from "./store";
 
@@ -17,6 +14,7 @@ import "./button";
 import "./sidebar";
 import "./validation-status";
 import "./resource-list";
+import { Pages, WonderStore } from "../shared/wonder-store";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -75,11 +73,9 @@ export class WonderEditor extends LitElement {
 
   private _initValue?: string;
 
-  init(
-    fieldTreeRoot?: FieldTreeNode[],
-    checkSyntaxData?: CheckSyntaxData,
-    currentPage?: Pages,
-  ) {
+  init(wonderStoreData: WonderStore) {
+    const { fieldTreeRoot, checkSyntaxData, currentPage, operatorTreeRoot } =
+      wonderStoreData;
     if (fieldTreeRoot) {
       wonderStore.fieldTreeRoot = fieldTreeRoot;
     }
@@ -90,6 +86,10 @@ export class WonderEditor extends LitElement {
 
     if (currentPage) {
       wonderStore.currentPage = currentPage;
+    }
+
+    if (operatorTreeRoot) {
+      wonderStore.operatorTreeRoot = operatorTreeRoot;
     }
   }
   private __view?: EditorView;
@@ -207,15 +207,14 @@ export class WonderEditor extends LitElement {
   }
 
   private _getDisplay() {
-    const { currentPage } = wonderStore;
-    if (this.shouldDisplay && currentPage !== Pages.Unknown) return "block";
+    if (this.shouldDisplay && wonderStore.currentPage !== Pages.Unknown)
+      return "block";
 
     return "none";
   }
 
   private _getMarginTop() {
-    const { currentPage } = wonderStore;
-    if (currentPage === Pages.Edit) return "5px";
+    if (wonderStore.currentPage === Pages.Edit) return "5px";
 
     return "0px";
   }

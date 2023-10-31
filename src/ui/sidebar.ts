@@ -2,9 +2,9 @@ import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { BULMA_CSS } from "./bulma";
 import { wonderStore } from "./store";
-import { FieldTreeNode } from "../shared/field-tree";
 import { EditorResource } from "./type";
 import { WonderEditor } from "./editor";
+import { FieldTreeNode } from "../shared/wonder-store";
 
 @customElement("wonder-sidebar")
 export class WonderSidebar extends LitElement {
@@ -64,6 +64,18 @@ export class WonderSidebar extends LitElement {
     return fieldTreeRoot.map(nodeToResource);
   }
 
+  private _getOperatorResources() {
+    const { operatorTreeRoot } = wonderStore;
+    if (!operatorTreeRoot) return [];
+
+    return operatorTreeRoot.map((node) => ({
+      name: node.key,
+      key: node.key,
+      onclick: () => this._insertResource(node.key),
+      descriptions: node.description ? [node.description] : undefined,
+    }));
+  }
+
   private _insertResource(resource: string) {
     const editor = document.querySelector<WonderEditor>("wonder-editor");
     if (!editor) {
@@ -85,7 +97,7 @@ export class WonderSidebar extends LitElement {
             class=${this._activeTab === 0 ? "is-active" : ""}
             @click=${() => (this._activeTab = 0)}
           >
-            <a>Ressources</a>
+            <a>Resources</a>
           </li>
           <li
             class=${this._activeTab === 1 ? "is-active" : ""}
@@ -105,6 +117,12 @@ export class WonderSidebar extends LitElement {
                     .onclick=${() => this._toggleActiveResource(0)}
                     .resources=${this._getFieldResources()}
                     .menuName=${"Fields"}
+                  ></wonder-resource-list>
+                  <wonder-resource-list
+                    .isActive=${this._activeResource === 1}
+                    .onclick=${() => this._toggleActiveResource(1)}
+                    .resources=${this._getOperatorResources()}
+                    .menuName=${"Operators"}
                   ></wonder-resource-list>
                 </ul>
               </aside>
