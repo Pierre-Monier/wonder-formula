@@ -15,7 +15,7 @@ export const formatSource = async (
     semi: false,
   });
 
-  const lastCharacterPosition = formattedFormula.cursorOffset - 1;
+  const lastCharacterPosition = formattedFormula.formatted.length - 1;
 
   // We have to do this by hand because prettier doesn't remove the last line break
   // https://github.com/prettier/prettier/issues/6360
