@@ -76,6 +76,21 @@ export class WonderSidebar extends LitElement {
     }));
   }
 
+  private _getFunctionResources() {
+    const { functionsTreeRoot } = wonderStore;
+    if (!functionsTreeRoot) return [];
+
+    return functionsTreeRoot
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((node) => ({
+        name: node.name,
+        key: node.key,
+        onclick: () => this._insertResource(node.key),
+        descriptions: [node.description],
+        onhelp: node.onhelp,
+      }));
+  }
+
   private _insertResource(resource: string) {
     const editor = document.querySelector<WonderEditor>("wonder-editor");
     if (!editor) {
@@ -121,6 +136,12 @@ export class WonderSidebar extends LitElement {
                   <wonder-resource-list
                     .isActive=${this._activeResource === 1}
                     .onclick=${() => this._toggleActiveResource(1)}
+                    .resources=${this._getFunctionResources()}
+                    .menuName=${"Functions"}
+                  ></wonder-resource-list>
+                  <wonder-resource-list
+                    .isActive=${this._activeResource === 2}
+                    .onclick=${() => this._toggleActiveResource(2)}
                     .resources=${this._getOperatorResources()}
                     .menuName=${"Operators"}
                   ></wonder-resource-list>

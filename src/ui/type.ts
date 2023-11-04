@@ -8,6 +8,7 @@ export type EditorResource = {
   name: string;
   key: string;
   onclick: () => void;
+  onhelp?: () => void;
   children?: EditorResource[];
   descriptions?: string[];
 };

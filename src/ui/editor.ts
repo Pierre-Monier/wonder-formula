@@ -74,8 +74,14 @@ export class WonderEditor extends LitElement {
   private _initValue?: string;
 
   init(wonderStoreData: WonderStore) {
-    const { fieldTreeRoot, checkSyntaxData, currentPage, operatorTreeRoot } =
-      wonderStoreData;
+    const {
+      fieldTreeRoot,
+      checkSyntaxData,
+      currentPage,
+      operatorTreeRoot,
+      functionsTreeRoot,
+    } = wonderStoreData;
+
     if (fieldTreeRoot) {
       wonderStore.fieldTreeRoot = fieldTreeRoot;
     }
@@ -90,6 +96,10 @@ export class WonderEditor extends LitElement {
 
     if (operatorTreeRoot) {
       wonderStore.operatorTreeRoot = operatorTreeRoot;
+    }
+
+    if (functionsTreeRoot) {
+      wonderStore.functionsTreeRoot = functionsTreeRoot;
     }
   }
   private __view?: EditorView;

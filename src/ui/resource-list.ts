@@ -51,7 +51,7 @@ export class WonderResourceList extends LitElement {
                   <div class="m-3">
                     ${e.descriptions.map(
                       (description) =>
-                        html` <p class="menu-label">${description}</p>`,
+                        html` <p class="menu-label content">${description}</p>`,
                     )}
                   </div>
                   <div class="is-flex is-justify-content-center">
@@ -63,6 +63,16 @@ export class WonderResourceList extends LitElement {
                     >
                       Insert
                     </button>
+                    ${e.onhelp
+                      ? html`<button
+                          @click=${() => {
+                            e.onhelp?.();
+                          }}
+                          class="button is-link ml-2"
+                        >
+                          Help
+                        </button>`
+                      : html``}
                   </div>
                 `
               : html``}
