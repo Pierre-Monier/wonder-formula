@@ -29,11 +29,19 @@ export type FieldTreeController = {
   };
 };
 
+export type FunctionsTreeNode = {
+  name: string;
+  key: string;
+  description: string;
+  onhelp?: () => void;
+};
+
 export type WonderStore = {
   checkSyntaxData?: CheckSyntaxData;
   currentPage: Pages;
   fieldTreeRoot?: FieldTreeNode[];
   operatorTreeRoot?: OperatorTreeNode[];
+  functionsTreeRoot?: FunctionsTreeNode[];
 };
 
 export enum Pages {

@@ -40,7 +40,6 @@ export class WonderValidationStatus extends LitElement {
   }
 
   autoFormat(documentValue: string) {
-    console.log("autoFormat : ", documentValue);
     clearTimeout(this._validationTimeout);
     this._validationTimeout = setTimeout(() => {
       void this._validate(documentValue);
