@@ -1,5 +1,5 @@
 import { LitElement, css, html } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { EditorView, keymap, showPanel } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 import { indentWithTab } from "@codemirror/commands";
@@ -9,11 +9,8 @@ import { formatSource, sformula } from "../lang-sformula";
 import { BULMA_CSS } from "./bulma";
 import { WonderValidationStatus } from "./validation-status";
 import { wonderStore } from "./store";
-
-import "./button";
-import "./sidebar";
-import "./validation-status";
-import "./resource-list";
+import { WonderUpperPanel } from "./upper-panel";
+import { MergeView } from "@codemirror/merge";
 import {
   FieldTreeNode,
   FunctionsTreeNode,
@@ -25,6 +22,11 @@ import {
   autocompletion,
   completeFromList,
 } from "@codemirror/autocomplete";
+
+import "./sidebar";
+import "./validation-status";
+import "./resource-list";
+import "./upper-panel";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -58,31 +60,78 @@ export class WonderEditor extends LitElement {
   @query("#editor")
   _editor!: HTMLDivElement;
 
+  @query("#diff")
+  _diff!: HTMLDivElement;
+
   private static _autoCompletionCompartment = new Compartment();
 
-  private _editorState = EditorState.create({
-    extensions: [
-      basicSetup,
-      WonderEditor._autoCompletionCompartment.of([]),
-      keymap.of([indentWithTab]),
-      sformula(),
-      espresso,
-      EditorState.tabSize.of(2),
-      showPanel.of(() => {
-        const dom = document.createElement(
-          "wonder-validation-status",
-        ) as WonderValidationStatus;
+  @state()
+  private _isShowingDiff = false;
 
-        return {
-          dom,
-          update: (update) => {
-            if (update.docChanged) {
-              dom.autoFormat(this.getValue());
-            }
-          },
-        };
-      }),
-    ],
+  private _getUpperPanelExtension = (showFormat: boolean) =>
+    showPanel.of(() => {
+      const dom = document.createElement(
+        "wonder-upper-panel",
+      ) as WonderUpperPanel;
+      dom.showFormat = showFormat;
+      dom.isShowingDiff = this._isShowingDiff;
+      dom.init(
+        () => this._format(),
+        () => this._toggleDiff(),
+      );
+
+      return {
+        dom,
+        top: true,
+      };
+    });
+
+  private _lowerPanelExtension = showPanel.of(() => {
+    const dom = document.createElement(
+      "wonder-validation-status",
+    ) as WonderValidationStatus;
+
+    return {
+      dom,
+      update: (update) => {
+        if (update.docChanged) {
+          dom.autoFormat(this.getValue());
+        }
+      },
+    };
+  });
+
+  private _extensions = [
+    basicSetup,
+    sformula(),
+    WonderEditor._autoCompletionCompartment.of([]),
+    EditorState.tabSize.of(2),
+    espresso,
+    keymap.of([indentWithTab]),
+    // Those extensions should be set at last to be easily removed when toggling diff
+    this._getUpperPanelExtension(true),
+    this._lowerPanelExtension,
+  ];
+
+  private _editorState = EditorState.create({
+    extensions: this._extensions,
+  });
+
+  private _mergeView = new MergeView({
+    a: {
+      doc: 'function f() {\n  console.log("Hello World!");\n}',
+      extensions: (() => {
+        const extensions = this._extensions.slice(0, -2);
+        extensions.push(this._getUpperPanelExtension(false));
+
+        return extensions;
+      })(),
+    },
+    b: {
+      doc: 'function f() {\n  console.log("Hello World2!");\n}',
+      extensions: this._extensions.slice(0, -2),
+    },
+    parent: this._diff,
   });
 
   private _initValue?: string;
@@ -144,6 +193,7 @@ export class WonderEditor extends LitElement {
     }
 
     this._editor.appendChild(this._view.dom);
+    this._diff.appendChild(this._mergeView.dom);
     this._registerAutoCompletion();
     this._registerKeyboardEvents();
   }
@@ -320,6 +370,20 @@ export class WonderEditor extends LitElement {
     });
   }
 
+  private _toggleDiff() {
+    this._isShowingDiff = !this._isShowingDiff;
+
+    const mergeViewUpperPanel =
+      this._diff.querySelector<WonderUpperPanel>("wonder-upper-panel");
+
+    if (!mergeViewUpperPanel) {
+      console.error("Toggling diff but no merge view found");
+      return;
+    }
+
+    mergeViewUpperPanel.isShowingDiff = this._isShowingDiff;
+  }
+
   private async _format() {
     if (!this._view) {
       console.error("Formatting but view is not initialized yet");
@@ -339,10 +403,18 @@ export class WonderEditor extends LitElement {
         style="display: ${this._getDisplay()}; margin-top: ${this._getMarginTop()};}"
       >
         <div class="columns mb-1">
-          <div id="editor" class="column"></div>
+          <div
+            id="editor"
+            class="column"
+            style="${this._isShowingDiff ? "display: none;" : ""}"
+          ></div>
+          <div
+            id="diff"
+            class="column"
+            style="${this._isShowingDiff ? "" : "display: none;"}"
+          ></div>
           <wonder-sidebar class="column is-one-third"></wonder-sidebar>
         </div>
-        <wonder-button .onclick=${() => this._format()}> Format </wonder-button>
       </div>
     `;
   }
