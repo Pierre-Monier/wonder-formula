@@ -67,6 +67,7 @@ export class WonderEditor extends LitElement {
       keymap.of([indentWithTab]),
       sformula(),
       espresso,
+      EditorState.tabSize.of(2),
       showPanel.of(() => {
         const dom = document.createElement(
           "wonder-validation-status",
