@@ -1,5 +1,9 @@
 import { parser } from "./parser";
-import { foldNodeProp, indentNodeProp } from "@codemirror/language";
+import {
+  continuedIndent,
+  foldNodeProp,
+  indentNodeProp,
+} from "@codemirror/language";
 import { styleTags, tags as t } from "@lezer/highlight";
 import { LRLanguage } from "@codemirror/language";
 import { LanguageSupport } from "@codemirror/language";
@@ -15,7 +19,7 @@ const parserWithMetadata = parser.configure({
       Function: t.function(t.variableName),
     }),
     indentNodeProp.add({
-      Function: (context) => context.column(context.node.from) + context.unit,
+      Function: continuedIndent(),
     }),
     foldNodeProp.add({
       Function: (node) => ({ from: node.from + 1, to: node.to - 1 }),
