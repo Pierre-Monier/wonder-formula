@@ -1,10 +1,12 @@
 import { parser } from "./parser";
-import { foldNodeProp, indentNodeProp } from "@codemirror/language";
+import {
+  continuedIndent,
+  foldNodeProp,
+  indentNodeProp,
+} from "@codemirror/language";
 import { styleTags, tags as t } from "@lezer/highlight";
 import { LRLanguage } from "@codemirror/language";
-import { completeFromList } from "@codemirror/autocomplete";
 import { LanguageSupport } from "@codemirror/language";
-import functions from "./function";
 
 const parserWithMetadata = parser.configure({
   props: [
@@ -17,7 +19,7 @@ const parserWithMetadata = parser.configure({
       Function: t.function(t.variableName),
     }),
     indentNodeProp.add({
-      Function: (context) => context.column(context.node.from) + context.unit,
+      Function: continuedIndent(),
     }),
     foldNodeProp.add({
       Function: (node) => ({ from: node.from + 1, to: node.to - 1 }),
@@ -25,15 +27,8 @@ const parserWithMetadata = parser.configure({
   ],
 });
 
-export const sformulaLanguage = LRLanguage.define({
+const sformulaLanguage = LRLanguage.define({
   parser: parserWithMetadata,
 });
 
-export const sformulaCompletion = sformulaLanguage.data.of({
-  autocomplete: completeFromList(
-    functions.map((e) => ({ label: e, type: "function" })),
-  ),
-});
-
-export const sformula = () =>
-  new LanguageSupport(sformulaLanguage, [sformulaCompletion]);
+export const sformula = () => new LanguageSupport(sformulaLanguage);

@@ -6,6 +6,7 @@ import {
   WonderStore,
   OperatorTreeNode,
   FunctionsTreeNode,
+  FieldTreeNode,
 } from "../../shared/wonder-store";
 
 const getCheckSyntaxData = () => {
@@ -43,7 +44,21 @@ const getFieldTreeRoot = () => {
       "fieldTreeController",
     ) as FieldTreeController;
 
-    return salesforceFieldTreeController.tree.rootList;
+    const getKey = (node: FieldTreeNode): string => {
+      if (node.parent?.key.charAt(0) === "$") {
+        return getKey(node.parent) + "." + node.key;
+      } else {
+        return node.key;
+      }
+    };
+
+    const updateKey = (node: FieldTreeNode): FieldTreeNode => ({
+      ...node,
+      key: getKey(node),
+      children: node.isLeaf ? undefined : node.children?.map(updateKey),
+    });
+
+    return salesforceFieldTreeController.tree.rootList.map(updateKey);
   } catch (error) {
     console.error("Failed to get field tree");
     return undefined;
