@@ -6,7 +6,7 @@ export type CheckSyntaxData = {
 };
 
 export type FieldTreeNode = {
-  children: FieldTreeNode[];
+  children?: FieldTreeNode[];
   isLeaf: boolean;
   key: string;
   labelName: string;

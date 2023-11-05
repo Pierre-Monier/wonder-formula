@@ -27,14 +27,6 @@ export class WonderSidebar extends LitElement {
     const { fieldTreeRoot } = wonderStore;
     if (!fieldTreeRoot) return [];
 
-    const getKey = (node: FieldTreeNode): string => {
-      if (node.parent?.key.charAt(0) === "$") {
-        return getKey(node.parent) + "." + node.key;
-      } else {
-        return node.key;
-      }
-    };
-
     const getDescriptions = (node: FieldTreeNode, key: string): string[] => {
       const descriptions = [];
 
@@ -50,14 +42,12 @@ export class WonderSidebar extends LitElement {
     };
 
     const nodeToResource = (node: FieldTreeNode): EditorResource => {
-      const key = getKey(node);
-
       return {
         name: node.labelName,
-        key: key,
-        onclick: () => this._insertResource(key),
+        key: node.key,
+        onclick: () => this._insertResource(node.key),
         children: node.isLeaf ? undefined : node.children?.map(nodeToResource),
-        descriptions: getDescriptions(node, key),
+        descriptions: getDescriptions(node, node.key),
       };
     };
 
