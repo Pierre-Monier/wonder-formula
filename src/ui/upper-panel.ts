@@ -36,22 +36,11 @@ export class WonderUpperPanel extends LitElement {
   init(format: () => Promise<void>, toggleDiff: () => void) {
     this._format = format;
     this._toggleDiff = toggleDiff;
-
-    console.log("init", this.isShowingDiff);
   }
 
   render() {
     return html`
       <div class="m-1">
-        ${this.showFormat
-          ? html`<button
-              @click=${() => this._tryToFormat()}
-              class="button is-outline is-small"
-            >
-              Format
-            </button>`
-          : html``}
-
         <button
           @click=${() => this._tryToToggleDiff()}
           class="button is-outline is-small ${this.isShowingDiff
@@ -60,6 +49,15 @@ export class WonderUpperPanel extends LitElement {
         >
           Diff
         </button>
+
+        ${this.showFormat
+          ? html`<button
+              @click=${() => this._tryToFormat()}
+              class="button is-outline is-small"
+            >
+              Format
+            </button>`
+          : html``}
       </div>
     `;
   }

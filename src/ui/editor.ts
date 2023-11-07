@@ -101,37 +101,21 @@ export class WonderEditor extends LitElement {
     };
   });
 
-  private _extensions = [
+  private _sharedExtensions = [
     basicSetup,
     sformula(),
     WonderEditor._autoCompletionCompartment.of([]),
     EditorState.tabSize.of(2),
     espresso,
     keymap.of([indentWithTab]),
-    // Those extensions should be set at last to be easily removed when toggling diff
-    this._getUpperPanelExtension(true),
-    this._lowerPanelExtension,
   ];
 
   private _editorState = EditorState.create({
-    extensions: this._extensions,
-  });
-
-  private _mergeView = new MergeView({
-    a: {
-      doc: 'function f() {\n  console.log("Hello World!");\n}',
-      extensions: (() => {
-        const extensions = this._extensions.slice(0, -2);
-        extensions.push(this._getUpperPanelExtension(false));
-
-        return extensions;
-      })(),
-    },
-    b: {
-      doc: 'function f() {\n  console.log("Hello World2!");\n}',
-      extensions: this._extensions.slice(0, -2),
-    },
-    parent: this._diff,
+    extensions: [
+      ...this._sharedExtensions,
+      this._getUpperPanelExtension(true),
+      this._lowerPanelExtension,
+    ],
   });
 
   private _initValue?: string;
@@ -186,16 +170,61 @@ export class WonderEditor extends LitElement {
     return this.__view;
   }
 
+  private __mergeView?: MergeView;
+
+  private get _mergeView() {
+    if (this._diff === null) {
+      return;
+    }
+
+    if (!this.__mergeView) {
+      this.__mergeView = new MergeView({
+        a: {
+          doc: this._initValue,
+          extensions: [
+            this._getUpperPanelExtension(false),
+            EditorView.editable.of(false),
+            EditorState.readOnly.of(true),
+            ...this._sharedExtensions,
+          ],
+        },
+        b: {
+          extensions: [
+            EditorView.editable.of(false),
+            EditorState.readOnly.of(true),
+            ...this._sharedExtensions,
+          ],
+        },
+        parent: this._diff,
+      });
+    }
+
+    return this.__mergeView;
+  }
+
   protected firstUpdated(): void {
+    this._appendEditorView();
+    this._appendDiffView();
+  }
+
+  private _appendEditorView() {
     if (!this._view) {
-      console.error("View is not initialized yet");
+      console.error("Editor view is not initialized yet");
       return;
     }
 
     this._editor.appendChild(this._view.dom);
-    this._diff.appendChild(this._mergeView.dom);
     this._registerAutoCompletion();
     this._registerKeyboardEvents();
+  }
+
+  private _appendDiffView() {
+    if (!this._mergeView) {
+      console.error("Merge view is not initialized yet");
+      return;
+    }
+
+    this._diff.appendChild(this._mergeView.dom);
   }
 
   private _registerAutoCompletion() {
@@ -342,6 +371,23 @@ export class WonderEditor extends LitElement {
     });
   }
 
+  private _setMergeValue(value: string) {
+    if (!this._mergeView) {
+      console.error(
+        "Merge view is not initialized yet, but trying to show diff view",
+      );
+      return;
+    }
+
+    this._mergeView?.b.dispatch({
+      changes: {
+        from: 0,
+        to: this._mergeView.b.state.doc.length,
+        insert: value,
+      },
+    });
+  }
+
   insertResource(
     resource: string,
     fromTo?: { from: number; to: number },
@@ -372,7 +418,6 @@ export class WonderEditor extends LitElement {
 
   private _toggleDiff() {
     this._isShowingDiff = !this._isShowingDiff;
-
     const mergeViewUpperPanel =
       this._diff.querySelector<WonderUpperPanel>("wonder-upper-panel");
 
@@ -382,6 +427,8 @@ export class WonderEditor extends LitElement {
     }
 
     mergeViewUpperPanel.isShowingDiff = this._isShowingDiff;
+
+    this._setMergeValue(this.getValue());
   }
 
   private async _format() {
@@ -402,6 +449,10 @@ export class WonderEditor extends LitElement {
       <div
         style="display: ${this._getDisplay()}; margin-top: ${this._getMarginTop()};}"
       >
+        <link
+          href="https://it-app-files.s3.amazonaws.com/static/home/scripts/codemirror/addons/merge.css"
+          rel="stylesheet"
+        />
         <div class="columns mb-1">
           <div
             id="editor"
