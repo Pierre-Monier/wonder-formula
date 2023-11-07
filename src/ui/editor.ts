@@ -1,19 +1,15 @@
 import { LitElement, css, html } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { EditorView, keymap, showPanel } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 import { indentWithTab } from "@codemirror/commands";
 import { basicSetup } from "codemirror";
-import { espresso } from "thememirror";
 import { formatSource, sformula } from "../lang-sformula";
 import { BULMA_CSS } from "./bulma";
 import { WonderValidationStatus } from "./validation-status";
 import { wonderStore } from "./store";
-
-import "./button";
-import "./sidebar";
-import "./validation-status";
-import "./resource-list";
+import { WonderUpperPanel } from "./upper-panel";
+import { MergeView } from "@codemirror/merge";
 import {
   FieldTreeNode,
   FunctionsTreeNode,
@@ -25,6 +21,12 @@ import {
   autocompletion,
   completeFromList,
 } from "@codemirror/autocomplete";
+import { wonderTheme } from "./theme";
+
+import "./sidebar";
+import "./validation-status";
+import "./resource-list";
+import "./upper-panel";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -58,30 +60,61 @@ export class WonderEditor extends LitElement {
   @query("#editor")
   _editor!: HTMLDivElement;
 
+  @query("#diff")
+  _diff!: HTMLDivElement;
+
   private static _autoCompletionCompartment = new Compartment();
+
+  @state()
+  private _isShowingDiff = false;
+
+  private _getUpperPanelExtension = (showFormat: boolean) =>
+    showPanel.of(() => {
+      const dom = document.createElement(
+        "wonder-upper-panel",
+      ) as WonderUpperPanel;
+      dom.showFormat = showFormat;
+      dom.isShowingDiff = this._isShowingDiff;
+      dom.init(
+        () => this._format(),
+        () => this._toggleDiff(),
+      );
+
+      return {
+        dom,
+        top: true,
+      };
+    });
+
+  private _lowerPanelExtension = showPanel.of(() => {
+    const dom = document.createElement(
+      "wonder-validation-status",
+    ) as WonderValidationStatus;
+
+    return {
+      dom,
+      update: (update) => {
+        if (update.docChanged) {
+          dom.autoFormat(this.getValue());
+        }
+      },
+    };
+  });
+
+  private _sharedExtensions = [
+    basicSetup,
+    sformula(),
+    WonderEditor._autoCompletionCompartment.of([]),
+    EditorState.tabSize.of(2),
+    wonderTheme,
+    keymap.of([indentWithTab]),
+  ];
 
   private _editorState = EditorState.create({
     extensions: [
-      basicSetup,
-      WonderEditor._autoCompletionCompartment.of([]),
-      keymap.of([indentWithTab]),
-      sformula(),
-      espresso,
-      EditorState.tabSize.of(2),
-      showPanel.of(() => {
-        const dom = document.createElement(
-          "wonder-validation-status",
-        ) as WonderValidationStatus;
-
-        return {
-          dom,
-          update: (update) => {
-            if (update.docChanged) {
-              dom.autoFormat(this.getValue());
-            }
-          },
-        };
-      }),
+      ...this._sharedExtensions,
+      this._getUpperPanelExtension(true),
+      this._lowerPanelExtension,
     ],
   });
 
@@ -137,15 +170,61 @@ export class WonderEditor extends LitElement {
     return this.__view;
   }
 
+  private __mergeView?: MergeView;
+
+  private get _mergeView() {
+    if (this._diff === null) {
+      return;
+    }
+
+    if (!this.__mergeView) {
+      this.__mergeView = new MergeView({
+        a: {
+          doc: this._initValue,
+          extensions: [
+            this._getUpperPanelExtension(false),
+            EditorView.editable.of(false),
+            EditorState.readOnly.of(true),
+            ...this._sharedExtensions,
+          ],
+        },
+        b: {
+          extensions: [
+            EditorView.editable.of(false),
+            EditorState.readOnly.of(true),
+            ...this._sharedExtensions,
+          ],
+        },
+        parent: this._diff,
+      });
+    }
+
+    return this.__mergeView;
+  }
+
   protected firstUpdated(): void {
+    this._appendEditorView();
+    this._appendDiffView();
+  }
+
+  private _appendEditorView() {
     if (!this._view) {
-      console.error("View is not initialized yet");
+      console.error("Editor view is not initialized yet");
       return;
     }
 
     this._editor.appendChild(this._view.dom);
     this._registerAutoCompletion();
     this._registerKeyboardEvents();
+  }
+
+  private _appendDiffView() {
+    if (!this._mergeView) {
+      console.error("Merge view is not initialized yet");
+      return;
+    }
+
+    this._diff.appendChild(this._mergeView.dom);
   }
 
   private _registerAutoCompletion() {
@@ -292,6 +371,23 @@ export class WonderEditor extends LitElement {
     });
   }
 
+  private _setMergeValue(value: string) {
+    if (!this._mergeView) {
+      console.error(
+        "Merge view is not initialized yet, but trying to show diff view",
+      );
+      return;
+    }
+
+    this._mergeView?.b.dispatch({
+      changes: {
+        from: 0,
+        to: this._mergeView.b.state.doc.length,
+        insert: value,
+      },
+    });
+  }
+
   insertResource(
     resource: string,
     fromTo?: { from: number; to: number },
@@ -320,6 +416,21 @@ export class WonderEditor extends LitElement {
     });
   }
 
+  private _toggleDiff() {
+    this._isShowingDiff = !this._isShowingDiff;
+    const mergeViewUpperPanel =
+      this._diff.querySelector<WonderUpperPanel>("wonder-upper-panel");
+
+    if (!mergeViewUpperPanel) {
+      console.error("Toggling diff but no merge view found");
+      return;
+    }
+
+    mergeViewUpperPanel.isShowingDiff = this._isShowingDiff;
+
+    this._setMergeValue(this.getValue());
+  }
+
   private async _format() {
     if (!this._view) {
       console.error("Formatting but view is not initialized yet");
@@ -338,11 +449,23 @@ export class WonderEditor extends LitElement {
       <div
         style="display: ${this._getDisplay()}; margin-top: ${this._getMarginTop()};}"
       >
+        <link
+          href="https://it-app-files.s3.amazonaws.com/static/home/scripts/codemirror/addons/merge.css"
+          rel="stylesheet"
+        />
         <div class="columns mb-1">
-          <div id="editor" class="column"></div>
+          <div
+            id="editor"
+            class="column"
+            style="${this._isShowingDiff ? "display: none;" : ""}"
+          ></div>
+          <div
+            id="diff"
+            class="column"
+            style="${this._isShowingDiff ? "" : "display: none;"}"
+          ></div>
           <wonder-sidebar class="column is-one-third"></wonder-sidebar>
         </div>
-        <wonder-button .onclick=${() => this._format()}> Format </wonder-button>
       </div>
     `;
   }
