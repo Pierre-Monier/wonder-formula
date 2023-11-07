@@ -4,7 +4,6 @@ import { EditorView, keymap, showPanel } from "@codemirror/view";
 import { Compartment, EditorState } from "@codemirror/state";
 import { indentWithTab } from "@codemirror/commands";
 import { basicSetup } from "codemirror";
-import { espresso } from "thememirror";
 import { formatSource, sformula } from "../lang-sformula";
 import { BULMA_CSS } from "./bulma";
 import { WonderValidationStatus } from "./validation-status";
@@ -22,6 +21,7 @@ import {
   autocompletion,
   completeFromList,
 } from "@codemirror/autocomplete";
+import { wonderTheme } from "./theme";
 
 import "./sidebar";
 import "./validation-status";
@@ -106,7 +106,7 @@ export class WonderEditor extends LitElement {
     sformula(),
     WonderEditor._autoCompletionCompartment.of([]),
     EditorState.tabSize.of(2),
-    espresso,
+    wonderTheme,
     keymap.of([indentWithTab]),
   ];
 
