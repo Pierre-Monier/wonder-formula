@@ -49,6 +49,13 @@ const styles = [
   },
 ];
 
+const mergeView = {
+  deleteGutter: "#FF3860",
+  deleteLine: "#FF4F38",
+  newGutter: "#23d160",
+  newLine: "#24D19B",
+};
+
 const theme = EditorView.theme({
   "&": {
     backgroundColor: settings.background,
@@ -74,6 +81,20 @@ const theme = EditorView.theme({
   ".cm-activeLineGutter": {
     backgroundColor: settings.lineHighlight,
   },
+  // mergeView
+  "&.cm-merge-a .cm-changedLine, .cm-deletedChunk": {
+    backgroundColor: mergeView.deleteLine,
+    opacity: 0.75,
+  },
+  "&.cm-merge-b .cm-changedLine": {
+    backgroundColor: mergeView.newLine,
+    opacity: 0.75,
+  },
+  ".cm-changeGutter": { width: "3px", paddingLeft: "1px" },
+  "&.cm-merge-a .cm-changedLineGutter, & .cm-deletedLineGutter": {
+    background: mergeView.deleteGutter,
+  },
+  "&.cm-merge-b .cm-changedLineGutter": { background: mergeView.newGutter },
 });
 
 const highlightStyle = HighlightStyle.define(styles);
