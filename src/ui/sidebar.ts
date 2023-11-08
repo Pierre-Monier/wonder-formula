@@ -96,7 +96,8 @@ export class WonderSidebar extends LitElement {
   }
 
   render() {
-    return html`<div class="tabs is-fullwidth">
+    return html`
+      <div class="tabs is-fullwidth">
         <ul>
           <li
             class=${this._activeTab === 0 ? "is-active" : ""}
@@ -112,7 +113,7 @@ export class WonderSidebar extends LitElement {
           </li>
         </ul>
       </div>
-      <div>
+      <div style="overflow-y: scroll; max-height: 80%;">
         ${this._activeTab === 0
           ? html`
               <aside class="menu">
@@ -139,6 +140,7 @@ export class WonderSidebar extends LitElement {
               </aside>
             `
           : html`<p>Feedback</p>`}
-      </div> `;
+      </div>
+    `;
   }
 }
