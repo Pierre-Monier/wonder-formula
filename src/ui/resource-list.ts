@@ -59,7 +59,7 @@ export class WonderResourceList extends LitElement {
                       @click=${() => {
                         e.onclick();
                       }}
-                      class="button is-primary"
+                      class="button is-primary is-small"
                     >
                       Insert
                     </button>
