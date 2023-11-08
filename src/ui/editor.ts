@@ -57,6 +57,11 @@ export class WonderEditor extends LitElement {
   })
   shouldDisplay = false;
 
+  @state()
+  private _editorHeight = "calc(20em + 2em)";
+
+  private _computedEditorHeight?: number;
+
   @query("#editor")
   _editor!: HTMLDivElement;
 
@@ -115,6 +120,12 @@ export class WonderEditor extends LitElement {
       ...this._sharedExtensions,
       this._getUpperPanelExtension(true),
       this._lowerPanelExtension,
+      EditorView.updateListener.of(() => {
+        if (!this._view) return;
+
+        this._computedEditorHeight = this._view.dom.offsetHeight;
+        this._editorHeight = this._computedEditorHeight + "px";
+      }),
     ],
   });
 
@@ -214,6 +225,8 @@ export class WonderEditor extends LitElement {
     }
 
     this._editor.appendChild(this._view.dom);
+
+    this._computedEditorHeight = this._view.dom.offsetHeight;
     this._registerAutoCompletion();
     this._registerKeyboardEvents();
   }
@@ -447,13 +460,9 @@ export class WonderEditor extends LitElement {
   render() {
     return html`
       <div
-        style="display: ${this._getDisplay()}; margin-top: ${this._getMarginTop()};}"
+        style="display: ${this._getDisplay()}; margin-top: ${this._getMarginTop()};"
       >
-        <link
-          href="https://it-app-files.s3.amazonaws.com/static/home/scripts/codemirror/addons/merge.css"
-          rel="stylesheet"
-        />
-        <div class="columns mb-1">
+        <div class="columns">
           <div
             id="editor"
             class="column"
@@ -464,7 +473,10 @@ export class WonderEditor extends LitElement {
             class="column"
             style="${this._isShowingDiff ? "" : "display: none;"}"
           ></div>
-          <wonder-sidebar class="column is-one-third"></wonder-sidebar>
+          <wonder-sidebar
+            class="column is-one-third"
+            style="height: ${this._editorHeight};"
+          ></wonder-sidebar>
         </div>
       </div>
     `;

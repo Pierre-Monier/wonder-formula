@@ -105,21 +105,15 @@ export class WonderValidationStatus extends LitElement {
   render() {
     return html`
       <div class="m-1">
-        <span style="color: ${this._getValidationColorText()}; display: block;"
+        <span
+          style="display: block;"
+          class="${this._validationStatus.currentStatus ===
+          ValidationState.Invalid
+            ? "has-text-danger"
+            : "has-text-info"}"
           >${this._validationStatus.text}</span
         >
       </div>
     `;
-  }
-
-  private _getValidationColorText() {
-    switch (this._validationStatus.currentStatus) {
-      case ValidationState.Loading:
-        return "grey";
-      case ValidationState.Valid:
-        return "green";
-      case ValidationState.Invalid:
-        return "red";
-    }
   }
 }
