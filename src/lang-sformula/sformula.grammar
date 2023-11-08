@@ -1,16 +1,106 @@
 @top Program { expression* }
 
 
-expression { Identifier | Number | String | Operator | Function }
+expression { Number | Operator | Boolean | Keyword | Function | String | Number | Identifier }
 
 Function { "(" expression* ")" }
+
+
 
 @skip { space }
 
 @tokens {
   space { @whitespace+ }
-  Operator { "+"|"-"|"*"|"/"|"^"|"="|"=="|"<>"|"!="|"<"|">"|"<="|">="|"&&"|"&"|"||" }
+  Operator { "+"|"-"|"*"|"/"|"^"|"&"|"="|"<>"|"<"|">"|"<="|">="|"&&"|"||" }
+  Boolean { "TRUE"|"True"|"true"|"FALSE"|"False"|"false" }
+  Keyword {
+  "MOD"|
+  "MAX"|
+  "MIN"|
+  "ROUND"|
+  "GEOLOCATION"|
+  "ISNUMBER"|
+  "ISNULL"|
+  "ISBLANK"|
+  "AND"|
+  "NOT"|
+  "OR"|
+  "ABS"|
+  "SQRT"|
+  "CEILING"|
+  "FLOOR"|
+  "MCEILING"|
+  "MFLOOR"|
+  "LOG"|
+  "EXP"|
+  "LN"|
+  "TEXT"|
+  "VALUE"|
+  "LEN"|
+  "LEFT"|
+  "MID"|
+  "RIGHT"|
+  "BEGINS"|
+  "CONTAINS"|
+  "SUBSTITUTE"|
+  "TRIM"|
+  "REVERSE"|
+  "IF"|
+  "CASE"|
+  "NULLVALUE"|
+  "BLANKVALUE"|
+  "DATE"|
+  "DAY"|
+  "MONTH"|
+  "YEAR"|
+  "TODAY"|
+  "NOW"|
+  "TIMENOW"|
+  "TIMEVALUE"|
+  "HOUR"|
+  "MINUTE"|
+  "SECOND"|
+  "MILLISECOND"|
+  "ADDMONTHS"|
+  "WEEKDAY"|
+  "LPAD"|
+  "RPAD"|
+  "UPPER"|
+  "LOWER"|
+  "FIND"|
+  "DATEVALUE"|
+  "DATETIMEVALUE"|
+  "BR"|
+  "CASESAFEID"|
+  "HYPERLINK"|
+  "FORMATDURATION"|
+  "INITCAP"|
+  "UNIXTIMESTAMP"|
+  "FROMUNIXTIME"|
+  "ISOWEEK"|
+  "ISOYEAR"|
+  "ASCII"|
+  "CHR"|
+  "DAYOFYEAR"|
+  "TRUNC"|
+  "SIN"|
+  "COS"|
+  "TAN"|
+  "ASIN"|
+  "ACOS"|
+  "ATAN"|
+  "PI"|
+  "ATAN2"|
+  "ISPICKVAL"|
+  "DISTANCE"|
+  "INCLUDES"|
+  "PICKLISTCOUNT"|
+  "CURRENCYRATE"|
+  "GETSESSIONID"|
+  "IMAGE"
+  }
   String { '"' !["]* '"' | "'" ![']* "'" }
   Number { $[0-9]+ }
   Identifier { $[A-Za-z_.$]+ }
+  @precedence { Boolean, Keyword, Identifier }
 }
