@@ -1,6 +1,8 @@
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { BULMA_CSS } from "./bulma";
+import { functions } from "./firebase";
+import { httpsCallable } from "firebase/functions";
 
 @customElement("wonder-feedback")
 export class WonderFeedback extends LitElement {
@@ -67,13 +69,21 @@ export class WonderFeedback extends LitElement {
     console.log(this._file);
   }
 
-  private _onSend() {
+  private async _onSend() {
     this._validateEmail();
     this._validateMessage();
 
     if (this._emailErrorMessage || this._messageErrorMessage) return;
 
-    console.log("send");
+    try {
+      const sendEmail = httpsCallable(functions, "sendEmail");
+      await sendEmail({
+        email: this._email,
+        message: this._message,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   render() {
