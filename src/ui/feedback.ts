@@ -60,20 +60,13 @@ export class WonderFeedback extends LitElement {
   }
 
   @state()
-  private _file?: File;
-
-  private _changeFile(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this._file = input.files?.[0];
-
-    console.log(this._file);
-  }
-
-  @state()
   private _sendSuccessMessage?: string;
 
   @state()
   private _sendErrorMessage?: string;
+
+  @state()
+  private _sendLoadingMessage?: string;
 
   private async _onSend() {
     this._validateEmail();
@@ -85,11 +78,14 @@ export class WonderFeedback extends LitElement {
       return;
     }
 
+    this._sendLoadingMessage = "Sending feedback...";
+
     try {
       const sendEmail = httpsCallable<
         { email: string; message: string },
         { success: boolean }
       >(functions, "sendEmail");
+
       const { data } = await sendEmail({
         email: this._email,
         message: this._message,
@@ -107,6 +103,8 @@ export class WonderFeedback extends LitElement {
       this._sendSuccessMessage = undefined;
       console.error(e);
     }
+
+    this._sendLoadingMessage = undefined;
   }
 
   render() {
@@ -141,38 +139,14 @@ export class WonderFeedback extends LitElement {
 
       <div class="field"></div>
 
-      <div class="field is-grouped">
-        <div class="control file is-small has-name is-boxed">
-          <label class="file-label">
-            <input
-              @input=${(e: Event) => this._changeFile(e)}
-              class="file-input"
-              type="file"
-              name="resume"
-            />
-            <span class="file-cta">
-              <span class="file-label"
-                >${WonderFeedback._fileSelectLabel}…</span
-              >
-            </span>
-            ${this._file
-              ? html` <span class="file-name">
-                  ${this._file.name.length >
-                  WonderFeedback._fileSelectLabel.length
-                    ? this._file.name.slice(
-                        0,
-                        WonderFeedback._fileSelectLabel.length,
-                      ) + "…"
-                    : this._file.name}
-                </span>`
-              : html``}
-          </label>
-        </div>
+      <div class="field">
         <div class="control">
           <button @click=${() => this._onSend()} class="button is-link">
             Submit
           </button>
-          ${this._sendErrorMessage
+          ${this._sendLoadingMessage
+            ? html`<p class="help">${this._sendLoadingMessage}</p>`
+            : this._sendErrorMessage
             ? html`<p class="help is-danger">${this._sendErrorMessage}</p>`
             : this._sendSuccessMessage
             ? html`<p class="help is-success">${this._sendSuccessMessage}</p>`
