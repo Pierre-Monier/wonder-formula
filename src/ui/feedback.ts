@@ -69,19 +69,42 @@ export class WonderFeedback extends LitElement {
     console.log(this._file);
   }
 
+  @state()
+  private _sendSuccessMessage?: string;
+
+  @state()
+  private _sendErrorMessage?: string;
+
   private async _onSend() {
     this._validateEmail();
     this._validateMessage();
 
-    if (this._emailErrorMessage || this._messageErrorMessage) return;
+    if (this._emailErrorMessage || this._messageErrorMessage) {
+      this._sendErrorMessage = undefined;
+      this._sendSuccessMessage = undefined;
+      return;
+    }
 
     try {
-      const sendEmail = httpsCallable(functions, "sendEmail");
-      await sendEmail({
+      const sendEmail = httpsCallable<
+        { email: string; message: string },
+        { success: boolean }
+      >(functions, "sendEmail");
+      const { data } = await sendEmail({
         email: this._email,
         message: this._message,
       });
+
+      if (data.success) {
+        this._sendSuccessMessage = "Message sent successfully";
+        this._sendErrorMessage = undefined;
+      } else {
+        this._sendErrorMessage = "Message failed to send";
+        this._sendSuccessMessage = undefined;
+      }
     } catch (e) {
+      this._sendErrorMessage = "Message failed to send";
+      this._sendSuccessMessage = undefined;
       console.error(e);
     }
   }
@@ -149,6 +172,11 @@ export class WonderFeedback extends LitElement {
           <button @click=${() => this._onSend()} class="button is-link">
             Submit
           </button>
+          ${this._sendErrorMessage
+            ? html`<p class="help is-danger">${this._sendErrorMessage}</p>`
+            : this._sendSuccessMessage
+            ? html`<p class="help is-success">${this._sendSuccessMessage}</p>`
+            : html``}
         </div>
       </div>`;
   }

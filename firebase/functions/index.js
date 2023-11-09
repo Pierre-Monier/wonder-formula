@@ -37,12 +37,12 @@ exports.sendEmail = onCall((request) => {
     })
 
     return {
-      data: "success",
+      success: true,
     }
   } catch (errors) {
     logger.error(errors);
     return {
-      data: "error",
+      success: false,
     }
   }
 });
