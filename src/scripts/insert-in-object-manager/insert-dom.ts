@@ -1,7 +1,6 @@
 import { WonderEditor } from "../../ui/editor";
 import data from "./data";
 import { getWonderStoreData } from "./get-wonder-store-data";
-
 import { handleEditorsTabs, registerOnSaves } from "./handle-event";
 import { rememberCurrentLink } from "./remember-link";
 

@@ -1,7 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { BULMA_CSS } from "./bulma";
-import { functions } from "./firebase";
+import { functions } from "../shared/firebase";
 import { httpsCallable } from "firebase/functions";
 
 @customElement("wonder-feedback")
