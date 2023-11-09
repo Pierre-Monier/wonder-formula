@@ -91,7 +91,7 @@ export class WonderSidebar extends LitElement {
 
     editor.insertResource(resource);
 
-    void reportInteractionGA("insert-resource", { resourceType });
+    void reportInteractionGA(`insert-resource-${resourceType}`);
   }
 
   private _toggleActiveResource(index: number) {

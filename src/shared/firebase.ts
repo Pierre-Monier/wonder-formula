@@ -48,7 +48,8 @@ const reportEvent = async (
         events: [
           {
             name: eventName,
-            params: eventParams,
+            // Setting engagement_time_msec to make GA count users
+            params: { engagement_time_msec: 1, ...eventParams },
           },
         ],
       }),
@@ -57,19 +58,11 @@ const reportEvent = async (
 };
 
 export const reportErrorGA = (message: string, detail?: unknown) => {
-  void reportEvent(EventType.Error, { message, detail });
+  void reportEvent("error", { message, detail });
 };
 
-export const reportInteractionGA = (
-  type: string,
-  extra?: Record<string, unknown>,
-) => {
-  void reportEvent(EventType.Error, { type, ...extra });
+export const reportInteractionGA = (type: string) => {
+  void reportEvent("interaction", { type });
 };
 
 export const analytics = getAnalytics(app);
-
-enum EventType {
-  Error = "error",
-  Interaction = "interaction",
-}
