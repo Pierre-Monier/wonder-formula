@@ -109,7 +109,7 @@ export class WonderFeedback extends LitElement {
 
   render() {
     return html`<div class="field">
-        <label class="label">Email*</label>
+        <label class="label">Email</label>
         <div class="control">
           <input
             @input=${(e: Event) => this._changeEmail(e)}
@@ -124,7 +124,7 @@ export class WonderFeedback extends LitElement {
       </div>
 
       <div class="field">
-        <label class="label">Message*</label>
+        <label class="label">Message</label>
         <div class="control">
           <textarea
             @input=${(e: Event) => this._changeMessage(e)}
