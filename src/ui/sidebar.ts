@@ -139,7 +139,7 @@ export class WonderSidebar extends LitElement {
                 </ul>
               </aside>
             `
-          : html`<p>Feedback</p>`}
+          : html`<wonder-feedback></wonder-feedback>`}
       </div>
     `;
   }

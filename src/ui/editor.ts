@@ -27,6 +27,7 @@ import "./sidebar";
 import "./validation-status";
 import "./resource-list";
 import "./upper-panel";
+import "./feedback";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
