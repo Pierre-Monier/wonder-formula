@@ -8,6 +8,7 @@ import {
   FunctionsTreeNode,
   FieldTreeNode,
 } from "../../shared/wonder-store";
+import { reportErrorGA } from "../../shared/firebase";
 
 const getCheckSyntaxData = () => {
   const input = document.querySelector<HTMLInputElement>(
@@ -60,7 +61,7 @@ const getFieldTreeRoot = () => {
 
     return salesforceFieldTreeController.tree.rootList.map(updateKey);
   } catch (error) {
-    console.error("Failed to get field tree");
+    reportErrorGA("Failed to get field tree", error);
     return undefined;
   }
 };
@@ -86,7 +87,7 @@ const getOperators = () => {
 
     return operatorTreeRoot;
   } catch (error) {
-    console.error("Failed to get operators");
+    void reportErrorGA("Failed to get operators", error);
     return undefined;
   }
 };
@@ -143,7 +144,7 @@ const getFunctions = () => {
 
     return functionTreeNodeRoot;
   } catch (errors) {
-    console.error("Failed to get functions : ", errors);
+    void reportErrorGA("Failed to get functions", errors);
     return undefined;
   }
 };

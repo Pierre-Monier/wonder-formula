@@ -28,6 +28,7 @@ import "./validation-status";
 import "./resource-list";
 import "./upper-panel";
 import "./feedback";
+import { reportErrorGA, reportInteractionGA } from "../shared/firebase";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -221,7 +222,9 @@ export class WonderEditor extends LitElement {
 
   private _appendEditorView() {
     if (!this._view) {
-      console.error("Editor view is not initialized yet");
+      void reportErrorGA(
+        "Editor view is not initialized yet but trying to append it",
+      );
       return;
     }
 
@@ -234,7 +237,9 @@ export class WonderEditor extends LitElement {
 
   private _appendDiffView() {
     if (!this._mergeView) {
-      console.error("Merge view is not initialized yet");
+      void reportErrorGA(
+        "Merge view is not initialized yet, but trying to append it",
+      );
       return;
     }
 
@@ -243,7 +248,7 @@ export class WonderEditor extends LitElement {
 
   private _registerAutoCompletion() {
     if (!this._view) {
-      console.error(
+      reportErrorGA(
         "Trying to register auto completion but view is not initialized yet",
       );
       return;
@@ -387,7 +392,7 @@ export class WonderEditor extends LitElement {
 
   private _setMergeValue(value: string) {
     if (!this._mergeView) {
-      console.error(
+      reportErrorGA(
         "Merge view is not initialized yet, but trying to show diff view",
       );
       return;
@@ -408,7 +413,7 @@ export class WonderEditor extends LitElement {
     nextCursorPosition?: { anchor: number; head: number },
   ) {
     if (!this._view) {
-      console.error("Inserting resource but view is not initialized yet");
+      void reportErrorGA("Inserting resource but view is not initialized yet");
       return;
     }
 
@@ -436,18 +441,20 @@ export class WonderEditor extends LitElement {
       this._diff.querySelector<WonderUpperPanel>("wonder-upper-panel");
 
     if (!mergeViewUpperPanel) {
-      console.error("Toggling diff but no merge view found");
+      void reportErrorGA("Toggling diff but no merge view found");
       return;
     }
 
     mergeViewUpperPanel.isShowingDiff = this._isShowingDiff;
 
     this._setMergeValue(this.getValue());
+
+    void reportInteractionGA("toggle-diff");
   }
 
   private async _format() {
     if (!this._view) {
-      console.error("Formatting but view is not initialized yet");
+      void reportErrorGA("Formatting but view is not initialized yet");
       return;
     }
 
@@ -456,6 +463,8 @@ export class WonderEditor extends LitElement {
     const formattedValue = await formatSource(this.getValue(), cursorOffset);
 
     this.setValue(formattedValue.formatted, formattedValue.cursorOffset);
+
+    void reportInteractionGA("format");
   }
 
   render() {

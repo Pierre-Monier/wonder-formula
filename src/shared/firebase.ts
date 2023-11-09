@@ -35,7 +35,7 @@ export const getOrCreateClientId = () => {
   return clientId;
 };
 
-export const reportEvent = async (
+const reportEvent = async (
   eventName: string,
   eventParams?: Record<string, unknown>,
 ) => {
@@ -56,4 +56,20 @@ export const reportEvent = async (
   );
 };
 
+export const reportErrorGA = (message: string, detail?: unknown) => {
+  void reportEvent(EventType.Error, { message, detail });
+};
+
+export const reportInteractionGA = (
+  type: string,
+  extra?: Record<string, unknown>,
+) => {
+  void reportEvent(EventType.Error, { type, ...extra });
+};
+
 export const analytics = getAnalytics(app);
+
+enum EventType {
+  Error = "error",
+  Interaction = "interaction",
+}

@@ -1,8 +1,8 @@
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { BULMA_CSS } from "./bulma";
-import { functions } from "../shared/firebase";
 import { httpsCallable } from "firebase/functions";
+import { functions, reportErrorGA } from "../shared/firebase";
 
 @customElement("wonder-feedback")
 export class WonderFeedback extends LitElement {
@@ -101,7 +101,7 @@ export class WonderFeedback extends LitElement {
     } catch (e) {
       this._sendErrorMessage = "Message failed to send";
       this._sendSuccessMessage = undefined;
-      console.error(e);
+      void reportErrorGA("Fail to send email feedback", e);
     }
 
     this._sendLoadingMessage = undefined;
