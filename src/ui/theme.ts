@@ -47,6 +47,10 @@ const styles = [
     color: "#261FED",
     fontWeight: "bold",
   },
+  {
+    tag: t.comment,
+    color: "#8a919966",
+  },
 ];
 
 const mergeView = {

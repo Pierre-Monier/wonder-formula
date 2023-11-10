@@ -19,6 +19,8 @@ const parserWithMetadata = parser.configure({
       Function: t.function(t.variableName),
       Keyword: t.keyword,
       Number: t.number,
+      Comment: t.comment,
+      CommentEnd: t.comment,
     }),
     indentNodeProp.add({
       Function: continuedIndent(),

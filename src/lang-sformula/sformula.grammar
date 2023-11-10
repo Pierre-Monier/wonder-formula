@@ -1,16 +1,25 @@
 @top Program { expression* }
 
 
-expression { Number | Operator | Boolean | Keyword | Function | String | Number | Identifier }
+expression { Number | Operator | Boolean | Keyword | Function | String | Comment | Number | Identifier }
 
 Function { "(" expression* ")" }
 
+@local tokens {
+  commentEnd { '*/' }
+  @else commentContent
+}
 
+@skip {} {
+  Comment { '/*' (commentContent)* commentEnd }
+}
+  
 
 @skip { space }
 
 @tokens {
   space { @whitespace+ }
+  CommentEnd[@name='*/'] { '*/' }
   Operator { "+"|"-"|"*"|"/"|"^"|"&"|"="|"<>"|"<"|">"|"<="|">="|"&&"|"||" }
   Boolean { "TRUE"|"True"|"true"|"FALSE"|"False"|"false" }
   Keyword {
