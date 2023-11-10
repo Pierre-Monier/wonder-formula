@@ -45,7 +45,7 @@ const getFieldTreeRoot = () => {
     ) as FieldTreeController;
 
     const getKey = (node: FieldTreeNode): string => {
-      if (node.parent?.key.charAt(0) === "$") {
+      if (node.parent?.key.charAt(0) === "$" || node.parent?.parent) {
         return getKey(node.parent) + "." + node.key;
       } else {
         return node.key;
