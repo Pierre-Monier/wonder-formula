@@ -53,7 +53,7 @@ export const handleEditorsTabs = (ul: Element) => {
   li.classList.add("tertiaryPalette");
 
   const a = document.createElement("a");
-  a.innerText = "Wonder Formula ✨";
+  a.innerText = "Wonder Formula 🪄";
   a.setAttribute("href", "javascript:void(0)");
   a.addEventListener("click", (event) => onButtonClick(event, li, ul));
 

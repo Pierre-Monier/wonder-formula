@@ -2,3 +2,5 @@ node_modules/
 build/
 dist/
 src/lang-sformula/parser.ts
+prod/
+prod.zip
