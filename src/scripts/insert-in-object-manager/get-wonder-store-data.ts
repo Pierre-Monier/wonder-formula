@@ -11,7 +11,11 @@ import {
 
 const getCheckSyntaxData = () => {
   const input = document.querySelector<HTMLInputElement>(
-    "input[name=validateDefaultFormula]",
+    `input[name=${
+      getCurrentPage() === Pages.New
+        ? "validateFormula"
+        : "validateDefaultFormula"
+    }]`,
   );
   const form = input?.form;
 

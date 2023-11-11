@@ -61,6 +61,7 @@ export class WonderValidationStatus extends LitElement {
     const formData = checkSyntaxData.getFormData();
 
     formData.set(checkSyntaxData.valueKey, documentValue);
+    formData.set("validateFormula", "Check+Syntax");
 
     const result = await fetch(checkSyntaxData.url, {
       method: checkSyntaxData.method,
