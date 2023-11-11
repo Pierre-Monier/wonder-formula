@@ -17,18 +17,20 @@ import {
   WonderStore,
 } from "../shared/wonder-store";
 import {
+  Completion,
+  CompletionContext,
   CompletionSource,
   autocompletion,
   completeFromList,
 } from "@codemirror/autocomplete";
 import { wonderTheme } from "./theme";
+import { reportErrorGA, reportInteractionGA } from "../shared/firebase";
 
 import "./sidebar";
 import "./validation-status";
 import "./resource-list";
 import "./upper-panel";
 import "./feedback";
-import { reportErrorGA, reportInteractionGA } from "../shared/firebase";
 
 @customElement("wonder-editor")
 export class WonderEditor extends LitElement {
@@ -265,7 +267,8 @@ export class WonderEditor extends LitElement {
     }
 
     if (fieldTreeRoot) {
-      autocompletions.push(this._registerFieldsAutocompletion(fieldTreeRoot));
+      this._setFieldsCompletion(fieldTreeRoot);
+      autocompletions.push(this._handleFieldsCompletions.bind(this));
     }
 
     this._view.dispatch({
@@ -277,30 +280,66 @@ export class WonderEditor extends LitElement {
     });
   }
 
-  private _registerFieldsAutocompletion(fieldTreeRoot: FieldTreeNode[]) {
-    const linearFieldTreeRoor = fieldTreeRoot.flatMap((node) => {
+  private _fieldsCompletion: Completion[] = [];
+
+  private _setFieldsCompletion(fieldTreeRoot: FieldTreeNode[]) {
+    const flattenNodes = (
+      node: FieldTreeNode,
+    ): FieldTreeNode[] | FieldTreeNode => {
       if (!node.children) {
         return node;
       }
 
       if (node.key.charAt(0) === "$") {
-        return [node, ...node.children];
+        return [node, ...node.children.flatMap(flattenNodes)];
       }
 
-      return node.children;
-    });
-
-    const nodeToAutocompletion = (node: FieldTreeNode) => {
-      return {
-        label: node.key,
-        displayLabel: node.labelName,
-        type: "variable",
-        section: node.parent?.key,
-        detail: node.attributes?.type,
-      };
+      return node.children.flatMap(flattenNodes);
     };
 
-    return completeFromList(linearFieldTreeRoor.map(nodeToAutocompletion));
+    const linearFieldTreeRoot = fieldTreeRoot.flatMap(flattenNodes);
+
+    const nodeToAutocompletion = (node: FieldTreeNode) => ({
+      label: node.key,
+      displayLabel: node.labelName,
+      type: "variable",
+      section: node.parent?.key,
+      detail: node.attributes?.type,
+    });
+
+    const completions = linearFieldTreeRoot.map(nodeToAutocompletion);
+
+    this._fieldsCompletion.push(...completions);
+  }
+
+  _handleFieldsCompletions(context: CompletionContext) {
+    const word = context.matchBefore(/[\w$.]*/);
+
+    if (!word || (word?.from === word?.to && !context.explicit)) return null;
+
+    const displayLabelOptions = this._fieldsCompletion
+      .filter(
+        (source) =>
+          source.displayLabel
+            ?.toLowerCase()
+            .startsWith(word.text.toLowerCase()),
+      )
+      .sort(
+        (a, b) => (a.displayLabel?.length ?? 0) - (b.displayLabel?.length ?? 0),
+      );
+
+    const labelOptions = this._fieldsCompletion
+      .filter(
+        (source) =>
+          source.label?.toLowerCase().startsWith(word.text.toLowerCase()),
+      )
+      .sort((a, b) => a.label.length - b.label.length);
+
+    return {
+      from: word.from,
+      options: [...displayLabelOptions, ...labelOptions],
+      filter: false,
+    };
   }
 
   private _registerFunctionsAutocompletion(

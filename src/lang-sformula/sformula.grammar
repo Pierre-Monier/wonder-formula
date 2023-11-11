@@ -1,9 +1,11 @@
 @top Program { expression* }
 
 
-expression { Number | Operator | Boolean | Keyword | Function | String | Comment | Number | Identifier }
+expression { Number | Operator | Boolean | Keyword | Function | Array | Braces | String | Comment | Number | Identifier }
 
 Function { "(" expression* ")" }
+Array { "[" expression* "]" }
+Braces { "{" expression* "}" }
 
 @local tokens {
   commentEnd { '*/' }
@@ -19,7 +21,6 @@ Function { "(" expression* ")" }
 
 @tokens {
   space { @whitespace+ }
-  CommentEnd[@name='*/'] { '*/' }
   Operator { "+"|"-"|"*"|"/"|"^"|"&"|"="|"<>"|"<"|">"|"<="|">="|"&&"|"||" }
   Boolean { "TRUE"|"True"|"true"|"FALSE"|"False"|"false" }
   Keyword {

@@ -68,7 +68,7 @@ export class WonderResourceList extends LitElement {
                           @click=${() => {
                             e.onhelp?.();
                           }}
-                          class="button is-link ml-2"
+                          class="button is-link ml-2 is-small"
                         >
                           Help
                         </button>`
