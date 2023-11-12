@@ -10,12 +10,14 @@ import {
 } from "../../shared/wonder-store";
 
 const getCheckSyntaxData = () => {
+  const currentPage = getCurrentPage();
+  const validateInputName =
+    currentPage === Pages.New || currentPage === Pages.ValidationRules
+      ? "validateFormula"
+      : "validateDefaultFormula";
+
   const input = document.querySelector<HTMLInputElement>(
-    `input[name=${
-      getCurrentPage() === Pages.New
-        ? "validateFormula"
-        : "validateDefaultFormula"
-    }]`,
+    `input[name=${validateInputName}]`,
   );
   const form = input?.form;
 
@@ -37,6 +39,8 @@ export const getCurrentPage = () => {
       return Pages.New;
     case data.editFieldBaseSelector:
       return Pages.Edit;
+    case data.validationBaseSelector:
+      return Pages.ValidationRules;
     default:
       return Pages.Unknown;
   }
@@ -95,9 +99,9 @@ const getOperators = () => {
 
 const getFunctions = () => {
   try {
-    const calculatedFormulaFunctionTd = document.querySelector(
-      "td#CalculatedFormula_functions",
-    );
+    const calculatedFormulaFunctionTd =
+      document.querySelector("td#CalculatedFormula_functions") ||
+      document.querySelector("td#ValidationFormula_functions");
 
     if (!calculatedFormulaFunctionTd) {
       throw new Error("Failed to get calculatedFormulaFunctionTd");

@@ -6,5 +6,6 @@ export default {
   newFieldBaseSelector: ".pbWizardBody table tbody > tr > td",
   editFieldBaseSelector:
     "div.pbBody div.pbSubsection table > tbody div.formulaEditorOuter > table > tbody",
+  validationBaseSelector: ".pbBody div:nth-child(4)",
   baseSelector: "",
 };

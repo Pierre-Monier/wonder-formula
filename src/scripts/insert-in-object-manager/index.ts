@@ -1,5 +1,14 @@
 import data from "./data";
-import { insertWonderFormulaButton } from "./insert-dom";
+import { getSalesForceEditor } from "./get-editors";
+import {
+  insertSalesforceEditorButton,
+  insertWonderFormulaButton,
+} from "./insert-dom";
 
 insertWonderFormulaButton(data.newFieldBaseSelector);
 insertWonderFormulaButton(data.editFieldBaseSelector);
+
+if (!data.baseSelector && getSalesForceEditor()) {
+  insertSalesforceEditorButton(data.validationBaseSelector);
+  insertWonderFormulaButton(data.validationBaseSelector);
+}

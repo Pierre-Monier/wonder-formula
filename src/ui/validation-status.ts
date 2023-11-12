@@ -31,8 +31,7 @@ export class WonderValidationStatus extends LitElement {
   }
 
   @state()
-  private _validationStatus =
-    WonderValidationStatus._defaultErrorValidationStatus;
+  private _validationStatus = WonderValidationStatus._loadingValidationStatus;
 
   private _validationTimeout?: NodeJS.Timeout;
 
@@ -77,28 +76,30 @@ export class WonderValidationStatus extends LitElement {
       newDocument.querySelector<HTMLSpanElement>("#validationStatus");
 
     if (!validationStatus) {
+      void reportErrorGA("Validate but validation status is not found");
       this._validationStatus =
         WonderValidationStatus._defaultErrorValidationStatus;
-      void reportErrorGA("Validate but validation status is not found");
       return;
     }
 
     const validationDataElement = validationStatus.firstElementChild;
     const isValid = validationDataElement?.classList.contains("validStyle");
-    const text = validationDataElement?.textContent;
+    const text =
+      validationDataElement?.textContent ?? validationStatus.innerText;
 
     if (!text && !documentValue) {
       this._validationStatus =
         WonderValidationStatus._emptyValueErrorValidationStatus;
       return;
     } else if (!text) {
+      reportErrorGA("Validate but validation text is not found");
       this._validationStatus =
         WonderValidationStatus._defaultErrorValidationStatus;
-      reportErrorGA("Validate but validation text is not found");
       return;
     }
     this._validationStatus = {
-      currentStatus: isValid ? ValidationState.Valid : ValidationState.Invalid,
+      currentStatus:
+        isValid === false ? ValidationState.Invalid : ValidationState.Valid,
       text: text,
     };
   }

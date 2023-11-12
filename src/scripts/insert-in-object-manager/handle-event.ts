@@ -79,7 +79,10 @@ const registerOnSaveEdit = () => {
   const quickSaveButtons = document.querySelectorAll(
     `input[name="quick_save"].btn`,
   );
-  const buttons = [...saveButtons, ...quickSaveButtons];
+  const saveAndNewButtons = document.querySelectorAll(
+    `input[name="save_new"].btn`,
+  );
+  const buttons = [...saveButtons, ...quickSaveButtons, ...saveAndNewButtons];
 
   buttons.forEach((saveButton) => {
     saveButton.addEventListener("click", () => {
@@ -96,6 +99,9 @@ export const registerOnSaves = () => {
       registerOnSaveNew();
       break;
     case Pages.Edit:
+      registerOnSaveEdit();
+      break;
+    case Pages.ValidationRules:
       registerOnSaveEdit();
       break;
     default:

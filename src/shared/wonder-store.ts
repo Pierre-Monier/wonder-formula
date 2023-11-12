@@ -47,5 +47,6 @@ export type WonderStore = {
 export enum Pages {
   New = "new",
   Edit = "edit",
+  ValidationRules = "validation",
   Unknown = "unknown",
 }
