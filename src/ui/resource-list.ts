@@ -95,7 +95,10 @@ export class WonderResourceList extends LitElement {
               : html``}
             ${this.isActive ? this._renderResources() : html``}
           </li>`
-        : html`<p class="menu-label">No content.</p>`}
+        : html`<p class="menu-label">
+            No content, try navigate to advanced formula and go back to Wonder
+            Formula 🪄
+          </p><br></br>`}
     `;
   }
 }

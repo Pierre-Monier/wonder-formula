@@ -1,7 +1,5 @@
-import { Pages } from "../../shared/wonder-store";
 import { WonderEditor } from "../../ui/editor";
 import data from "./data";
-import { getCurrentPage } from "./get-wonder-store-data";
 
 export const getSalesForceEditor = () =>
   document.querySelector<HTMLTextAreaElement>(
@@ -9,10 +7,10 @@ export const getSalesForceEditor = () =>
   );
 
 export const getSalesforceEditorContainer = () => {
-  const isOnValidationPage = getCurrentPage() === Pages.ValidationRules;
-
-  return document.querySelector<HTMLElement>(
-    `${data.baseSelector} ${isOnValidationPage ? "" : "div.miniTabOn"} table`,
+  return (
+    document.querySelector<HTMLElement>(
+      `${data.baseSelector} div.miniTabOn table`,
+    ) || document.querySelector<HTMLElement>(`${data.baseSelector} table`)
   );
 };
 
