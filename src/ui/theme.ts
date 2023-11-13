@@ -55,9 +55,9 @@ const styles = [
 
 const mergeView = {
   deleteGutter: "#FF3860",
-  deleteLine: "#FF4F38",
+  deleteLine: "rgba(255,79,56,.25)",
   newGutter: "#23d160",
-  newLine: "#24D19B",
+  newLine: "rgba(36,209,155,.25)",
 };
 
 const theme = EditorView.theme({
@@ -88,11 +88,9 @@ const theme = EditorView.theme({
   // mergeView
   "&.cm-merge-a .cm-changedLine, .cm-deletedChunk": {
     backgroundColor: mergeView.deleteLine,
-    opacity: 0.75,
   },
   "&.cm-merge-b .cm-changedLine": {
     backgroundColor: mergeView.newLine,
-    opacity: 0.75,
   },
   ".cm-changeGutter": { width: "3px", paddingLeft: "1px" },
   "&.cm-merge-a .cm-changedLineGutter, & .cm-deletedLineGutter": {

@@ -13,6 +13,7 @@ export const formatSource = async (
     cursorOffset: cursorOffset ?? 0,
     plugins: [estree, babel],
     semi: false,
+    trailingComma: "none",
   });
 
   const lastCharacterPosition = formattedFormula.formatted.length - 1;
