@@ -3,7 +3,6 @@ import { customElement, state } from "lit/decorators.js";
 import { ValidationState } from "./type";
 import { BULMA_CSS } from "./bulma";
 import { wonderStore } from "./store";
-import { reportErrorGA } from "../shared/firebase";
 
 @customElement("wonder-validation-status")
 export class WonderValidationStatus extends LitElement {
@@ -49,7 +48,7 @@ export class WonderValidationStatus extends LitElement {
   private async _validate(documentValue: string) {
     const { checkSyntaxData } = wonderStore;
     if (!checkSyntaxData) {
-      void reportErrorGA("Validate but validation checkSyntaxData is not set");
+      console.error("Validate but validation checkSyntaxData is not set");
       this._validationStatus =
         WonderValidationStatus._defaultErrorValidationStatus;
       return;
@@ -76,7 +75,7 @@ export class WonderValidationStatus extends LitElement {
       newDocument.querySelector<HTMLSpanElement>("#validationStatus");
 
     if (!validationStatus) {
-      void reportErrorGA("Validate but validation status is not found");
+      console.error("Validate but validation status is not found");
       this._validationStatus =
         WonderValidationStatus._defaultErrorValidationStatus;
       return;
@@ -92,7 +91,7 @@ export class WonderValidationStatus extends LitElement {
         WonderValidationStatus._emptyValueErrorValidationStatus;
       return;
     } else if (!text) {
-      reportErrorGA("Validate but validation text is not found");
+      console.error("Validate but validation text is not found");
       this._validationStatus =
         WonderValidationStatus._defaultErrorValidationStatus;
       return;

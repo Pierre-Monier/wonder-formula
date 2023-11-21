@@ -1,7 +1,6 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { BULMA_CSS } from "./bulma";
-import { reportErrorGA } from "../shared/firebase";
 
 @customElement("wonder-upper-panel")
 export class WonderUpperPanel extends LitElement {
@@ -18,7 +17,7 @@ export class WonderUpperPanel extends LitElement {
 
   private _tryToFormat() {
     if (!this._format) {
-      void reportErrorGA("No format function set");
+      console.error("No format function set");
       return;
     }
 
@@ -27,7 +26,7 @@ export class WonderUpperPanel extends LitElement {
 
   private _tryToToggleDiff() {
     if (!this._toggleDiff) {
-      void reportErrorGA("No toggleDiff function set");
+      console.error("No toggleDiff function set");
       return;
     }
 

@@ -5,7 +5,6 @@ import { wonderStore } from "./store";
 import { EditorResource } from "./type";
 import { WonderEditor } from "./editor";
 import { FieldTreeNode } from "../shared/wonder-store";
-import { reportErrorGA, reportInteractionGA } from "../shared/firebase";
 
 @customElement("wonder-sidebar")
 export class WonderSidebar extends LitElement {
@@ -46,7 +45,7 @@ export class WonderSidebar extends LitElement {
       return {
         name: node.labelName,
         key: node.key,
-        onclick: () => this._insertResource(node.key, "field"),
+        onclick: () => this._insertResource(node.key),
         children: node.isLeaf ? undefined : node.children?.map(nodeToResource),
         descriptions: getDescriptions(node, node.key),
       };
@@ -62,7 +61,7 @@ export class WonderSidebar extends LitElement {
     return operatorTreeRoot.map((node) => ({
       name: node.key,
       key: node.key,
-      onclick: () => this._insertResource(node.key, "operator"),
+      onclick: () => this._insertResource(node.key),
       descriptions: node.description ? [node.description] : undefined,
     }));
   }
@@ -76,22 +75,20 @@ export class WonderSidebar extends LitElement {
       .map((node) => ({
         name: node.name,
         key: node.key,
-        onclick: () => this._insertResource(node.key, "function"),
+        onclick: () => this._insertResource(node.key),
         descriptions: [node.description],
         onhelp: node.onhelp,
       }));
   }
 
-  private _insertResource(resource: string, resourceType: string) {
+  private _insertResource(resource: string) {
     const editor = document.querySelector<WonderEditor>("wonder-editor");
     if (!editor) {
-      void reportErrorGA("editor not found while inserting a resource");
+      console.error("editor not found while inserting a resource");
       return;
     }
 
     editor.insertResource(resource);
-
-    void reportInteractionGA(`insert-resource-${resourceType}`);
   }
 
   private _toggleActiveResource(index: number) {
