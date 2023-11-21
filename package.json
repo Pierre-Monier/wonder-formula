@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "tsc -w & sleep 5; rollup -c -w",
-    "deploy": "npm run deploy:firebase; npm run deploy:build-app; npm run deploy:package-app",
-    "deploy:firebase": "cd firebase && firebase deploy --only functions && cd ../",
-    "deploy:build-app": "tsc -w & sleep 5; rollup -c; ",
+    "deploy": "npm run deploy:build-app; npm run deploy:package-app",
+    "deploy:build-app": "tsc & sleep 5; rollup -c; ",
     "deploy:package-app": "rmdir prod; mkdir prod; cp -r dist prod/; cp manifest.json prod/; cp -r icons prod/; zip -r prod.zip prod;",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
